@@ -62,3 +62,31 @@ function updateActiveNav(viewName) {
         link.classList.toggle('active', link.getAttribute('data-view') === viewName);
     });
 }
+
+// 7. Function to fetch user data by ID
+async function fetchUser(userId) {
+    // Check if we already have this user cached
+    if (appData.users[userId]) {
+        return appData.users[userId]; // Return cached data
+    }
+    
+    // If not cached, fetch from API
+    try {
+        const response = await fetch(`https://dummyjson.com/users/${userId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user: ${response.status}`);
+        }
+        
+        const user = await response.json();
+        
+        // Cache the user for future use
+        appData.users[userId] = user;
+        
+        return user;
+    } catch (error) {
+        console.error(`Error fetching user ${userId}:`, error);
+        throw error; // Re-throw to handle in calling function
+    }
+}
+
