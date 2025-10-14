@@ -63,7 +63,7 @@ function updateActiveNav(viewName) {
     });
 }
 
-// 7. Function to fetch user data by ID
+// Function to fetch user data by ID
 async function fetchUser(userId) {
     // Check if we already have this user cached
     if (appData.users[userId]) {
@@ -87,6 +87,131 @@ async function fetchUser(userId) {
     } catch (error) {
         console.error(`Error fetching user ${userId}:`, error);
         throw error; // Re-throw to handle in calling function
+    }
+}
+
+// Async function to fetch posts (initial load)
+async function loadPosts() {
+    // Prevent loading if already loading
+    if (appData.isLoading) return;
+    
+    const postsContainer = document.getElementById('posts-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const spinner = document.getElementById('loading-spinner');
+    
+    try {
+        // Set loading state
+        appData.isLoading = true;
+        showSpinner();
+        
+        // Fetch batch of posts from DummyJSON API
+        const response = await fetch(`https://dummyjson.com/posts?limit=${appData.postsPerPage}&skip=${appData.currentSkip}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch posts: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Store total number of posts available
+        appData.totalPosts = data.total;
+        
+        // Check if no posts were returned
+        if (data.posts.length === 0 && appData.posts.length === 0) {
+            postsContainer.innerHTML = '<div class="empty-state">📭 No posts available at the moment.</div>';
+            hideSpinner();
+            return;
+        }
+        
+        // Add new posts to our state
+        appData.posts.push(...data.posts);
+        
+        // Update skip counter
+        appData.currentSkip += data.posts.length;
+        
+        // Display each post with usernames!
+        for (const post of data.posts) {
+            await displayPost(post);
+        }
+        
+        // Hide spinner
+        hideSpinner();
+        
+        // Show or hide "Load More" button
+        updateLoadMoreButton();
+        
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        hideSpinner();
+        postsContainer.innerHTML = '<div class="error-state">❌ Failed to load posts. Please check your internet connection and try again.</div>';
+    } finally {
+        // Always reset loading state
+        appData.isLoading = false;
+    }
+}
+
+// Function to display a single post
+async function displayPost(post) {
+    // STEP 1: Get the container where we'll put this post
+    const postsContainer = document.getElementById('posts-container');
+    
+    // STEP 1.5: Fetch the user data for this post
+    try {
+        const user = await fetchUser(post.userId);
+        const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
+        
+        // STEP 2: Create a new article element
+        const postElement = document.createElement('article');
+        
+        postElement.className = 'post-card';
+        
+        // STEP 3: Process the tags array into HTML
+        const tagsHTML = post.tags.map(tag => 
+            `<span class="tag">${tag}</span>`
+        ).join('');
+        
+        // STEP 4: Build the HTML structure
+        postElement.innerHTML = `
+            <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+            <div class="post-meta">
+                <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
+                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                <span class="views">👁️ ${post.views} views</span>
+            </div>
+            <p class="post-body">${post.body}</p>
+            <div class="post-tags">${tagsHTML}</div>
+        `;
+        
+        // STEP 5: Add click event listeners
+        const postTitle = postElement.querySelector('.post-title');
+        const authorSpan = postElement.querySelector('.author');
+        
+        // Click on title → view post detail
+        postTitle.addEventListener('click', () => {
+            viewPostDetail(post.id); // Future function
+        });
+        
+        // Click on author → open modal with profile
+        authorSpan.addEventListener('click', () => {
+            openUserProfileModal(post.userId); // Future function
+        });
+        
+        // STEP 6: Add the post to the page
+        postsContainer.appendChild(postElement);
+    } catch (error) {
+        console.error('Error displaying post:', error);
+        // Still show the post even if user fetch fails
+        const postElement = document.createElement('article');
+        postElement.className = 'post-card';
+        postElement.innerHTML = `
+            <h3 class="post-title">${post.title}</h3>
+            <div class="post-meta">
+                <span class="author">👤 User ${post.userId}</span>
+                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+            </div>
+            <p class="post-body">${post.body}</p>
+        `;
+        postsContainer.appendChild(postElement);
     }
 }
 
