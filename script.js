@@ -12,6 +12,7 @@ const appData = {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
+    setupLoadMoreButton();
 
     // Check if there's a hash in URL (e.g., #posts)
     const hash = window.location.hash.slice(1) || 'home';
@@ -215,3 +216,48 @@ async function displayPost(post) {
     }
 }
 
+// Load more posts when button is clicked
+async function loadMorePosts() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    // Disable button while loading
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Loading...';
+    
+    await loadPosts();
+    
+    // Re-enable button
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = 'Load More Posts';
+}
+
+// Setup the "Load More" button
+function setupLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    loadMoreBtn.addEventListener('click', loadMorePosts);
+}
+
+// Show/hide Load More button based on available posts
+function updateLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    if (appData.currentSkip >= appData.totalPosts) {
+        // No more posts to load
+        loadMoreBtn.classList.add('hidden');
+    } else {
+        // More posts available
+        loadMoreBtn.classList.remove('hidden');
+    }
+}
+
+// Show loading spinner
+function showSpinner() {
+    const spinner = document.getElementById('loading-spinner');
+    spinner.classList.remove('hidden');
+}
+
+// Hide loading spinner
+function hideSpinner() {
+    const spinner = document.getElementById('loading-spinner');
+    spinner.classList.add('hidden');
+}
