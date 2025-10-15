@@ -261,3 +261,61 @@ function hideSpinner() {
     const spinner = document.getElementById('loading-spinner');
     spinner.classList.add('hidden');
 }
+
+// View post detail wit comments
+async function viewPostDetail(postId) {
+    showView('post-detail')
+
+    const postContent = document.getElementById('post-content');
+    const commentsContainer = document.getElementById('comments-container');
+
+    // Show loading state
+    postContent.innerHTML = '<p>Loading post...</p>';
+    commentsContainer.innerHTML = '';
+
+    try{
+        const postResponse = await fetch(`https://dummyjson.com/posts/${postId}`);
+
+        if (!postResponse.ok){
+            throw new Error(`Failed to fetch post: ${postResponse.status}`);
+        }
+
+        const post = await postResponse.json();
+
+        // Store the current post
+        appData.currentPost = post;
+
+        // Fetch the author
+        const user = await fetchUser(post.userId);
+        const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
+
+        //Display post details
+        const tagsHTML = post.tags.map(tag => `<span class='tag´>${tag}</span>`).join('');
+        postContent.innerHTML = `
+            <article class="post-detail-card">
+                <h2>${post.title}</h2>
+                <div class="post-meta">
+                    <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
+                    <span class="reactions">❤️ ${post.reactions.likes} likes | 👎 ${post.reactions.dislikes} dislikes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <div class="post-tags">${tagsHTML}</div>
+                <p class="post-full-body">${post.body}</p>
+            </article>
+        `;
+
+        // Add click event to auhot in detail view
+        const authorInDetail = postContent.querySelector('.author');
+        if(authorInDetail){
+            authorInDetail.addEventListener('click', () => {
+                openUserProfileModal(post.userId);
+            })
+        }
+
+        // Load comments
+        await loadComments(postId);
+    } catch(error){
+        console.error('Error loading post detail:', error);
+        postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
+    }
+}
