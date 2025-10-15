@@ -13,10 +13,17 @@ const appData = {
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupLoadMoreButton();
+    setupContactForm();
+    setupModal();
 
     // Check if there's a hash in URL (e.g., #posts)
     const hash = window.location.hash.slice(1) || 'home';
-    showView(hash);    
+    showView(hash);
+
+    //Back button from post details
+    document.getElementById('back-btn').addEventListener('click', () => {
+        showView('posts');
+    });
 });
 
 // Setup navigation links
@@ -291,6 +298,7 @@ async function viewPostDetail(postId) {
 
         //Display post details
         const tagsHTML = post.tags.map(tag => `<span class='tag´>${tag}</span>`).join('');
+
         postContent.innerHTML = `
             <article class="post-detail-card">
                 <h2>${post.title}</h2>
@@ -309,11 +317,12 @@ async function viewPostDetail(postId) {
         if(authorInDetail){
             authorInDetail.addEventListener('click', () => {
                 openUserProfileModal(post.userId);
-            })
+            });
         }
 
         // Load comments
         await loadComments(postId);
+
     } catch(error){
         console.error('Error loading post detail:', error);
         postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
@@ -322,10 +331,11 @@ async function viewPostDetail(postId) {
 
 async function loadComments(postId){
     const commentsContainer = document.getElementById('comments-container');
-    commentsContainer.innerHTML = '<p>Loading comments...</p>'
+    commentsContainer.innerHTML = '<p>Loading comments...</p>';
 
     try{
         const response = await fetch(`https://dummyjson.com/comments/post/${postId}`);
+
         if(!response.ok){
             throw new Error(`Failed to fetch comments: ${response.status}`);
         }
@@ -350,7 +360,8 @@ async function loadComments(postId){
                 <p class="comment-body">${comment.body}</p>
             `;
             commentsContainer.appendChild(commentElement);
-        })
+        });
+
     } catch (error){
         console.error('Error loading comments;', error);
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
@@ -458,7 +469,7 @@ async function viewUserProfile(userId) {
     const userPostsContainer = document.getElementById('user-posts-container');
 
     //Show loading state
-    profileContent.innerHTML = '<p>Loading profile...</p>'
+    profileContent.innerHTML = '<p>Loading profile...</p>';
     userPostsContainer.innerHTML ='';
 
     try {
@@ -502,6 +513,29 @@ async function viewUserProfile(userId) {
     }
 }
 
+// Contact Form
+function setupContactForm(){
+    const form = document.getElementById('contact-form');
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Get form data
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        // Success message 
+        const successMessage = document.getElementById('success-message');
+        successMessage.classList.remove('hidden');
+
+        // Reset form
+        form.reset();
+
+        // Hide success message after 5 sec
+        setTimeout(() => {successMessage.classList.add('hidden');}, 5000)
+        });
+}
 
 
 
