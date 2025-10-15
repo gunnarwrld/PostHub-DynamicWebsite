@@ -119,7 +119,7 @@ async function loadPosts() {
         
         // Check if no posts were returned
         if (data.posts.length === 0 && appData.posts.length === 0) {
-            postsContainer.innerHTML = '<div class="empty-state">📭 No posts available at the moment.</div>';
+            postsContainer.innerHTML = '<div class="empty-state">No posts available at the moment.</div>';
             hideSpinner();
             return;
         }
@@ -144,7 +144,7 @@ async function loadPosts() {
     } catch (error) {
         console.error('Error loading posts:', error);
         hideSpinner();
-        postsContainer.innerHTML = '<div class="error-state">❌ Failed to load posts. Please check your internet connection and try again.</div>';
+        postsContainer.innerHTML = '<div class="error-state">Failed to load posts. Please check your internet connection and try again.</div>';
     } finally {
         // Always reset loading state
         appData.isLoading = false;
@@ -189,12 +189,12 @@ async function displayPost(post) {
         
         // Click on title → view post detail
         postTitle.addEventListener('click', () => {
-            viewPostDetail(post.id); // Future function
+            viewPostDetail(post.id);
         });
         
         // Click on author → open modal with profile
         authorSpan.addEventListener('click', () => {
-            openUserProfileModal(post.userId); // Future function
+            openUserProfileModal(post.userId);
         });
         
         // STEP 6: Add the post to the page
@@ -449,6 +449,58 @@ function setupModal(){
     });
 }
 
+// View user profile with their posts
+async function viewUserProfile(userId) {
+
+    showView('profile');
+
+    const profileContent = document.getElementById('profile-content');
+    const userPostsContainer = document.getElementById('user-posts-container');
+
+    //Show loading state
+    profileContent.innerHTML = '<p>Loading profile...</p>'
+    userPostsContainer.innerHTML ='';
+
+    try {
+        // Fetch user details
+        const user = await fetchUser(userId);
+
+        if(!user){
+            profileContent.innerHTML = '<div class="error-states">User not found.</div>';
+            return;
+        }
+
+        // Store current user 
+        appData.currentUser = user;
+
+        // Display user profile
+        profileContent.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-header">
+                    <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="profile-image">
+                    <div class="profile-info">
+                        <h2>${user.firstName} ${user.lastName}</h2>
+                        <p class="profile-username">@${user.username}</p>
+                        <p class="profile-email">📧 ${user.email}</p>
+                        <p class="profile-details">
+                            📍 ${user.address.city}, ${user.address.state}<br>
+                            🎂 Age: ${user.age} | 
+                            👁️ ${user.eyeColor} eyes | 
+                            ${user.height}cm
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Load user´s posts
+        await loadUserPosts(userId);
+
+    } catch (error) {
+        console.error('Error loading profile', error);
+        profileContent.innerHTML = '<div class="error-state">Failed to load profile. Please check your connection and try again.</div>';        
+    }
+}
 
 
 
