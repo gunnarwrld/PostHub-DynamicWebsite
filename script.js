@@ -319,3 +319,41 @@ async function viewPostDetail(postId) {
         postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
     }
 }
+
+async function loadComments(postId){
+    const commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = '<p>Loading comments...</p>'
+
+    try{
+        const response = await fetch(`https://dummyjson.com/comments/post/${postId}`);
+        if(!response.ok){
+            throw new Error(`Failed to fetch comments: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.comments.lenght === 0){
+            commentsContainer.innerHTML = '<div class="empty-state">No comments available for this post.</div>';
+            return;
+        }
+
+        commentsContainer.innerHTML = '';
+
+        data.comments.forEach(comment => {
+            const commentElement = document.createElement('div')
+            commentElement.className = 'comment-card';
+            commentElement.innerHTML = `
+                <div class="comment-header">
+                    <strong>👤 ${comment.user.username}</strong>
+                    <span class="comment-likes">❤️ ${comment.likes}</span>
+                </div>
+                <p class="comment-body">${comment.body}</p>
+            `;
+            commentsContainer.appendChild(commentElement);
+        })
+    } catch (error){
+        console.error('Error loading comments;', error);
+        commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
+    }
+}
+
