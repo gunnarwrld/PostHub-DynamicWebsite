@@ -357,3 +357,104 @@ async function loadComments(postId){
     }
 }
 
+// Open user profile (in modal)
+async function openUserProfileModal(UserId) {
+    const modal = document.getElementById('profile-modal');
+    const modalContent = document.getElementById('modal-profile-content');
+
+    // Show modal
+    modal.classList.remove('hidden');
+    modalContent.innerHtml = '<p style="text-align: center;">Loading profile...</p>';
+
+    try {
+        // Fetch user details (will use if available on cache)
+        const user = await fetchUser(userId);
+
+        if(!user){
+            modalContent.innerHTML = '<div class="error-state">User not found</div>';
+            return;
+        }
+
+        // Display user profile in modal with full details
+        modalContent.innerHTML = `
+            <div class="modal-profile-header">
+                <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="modal-profile-image">
+                <h2 class="modal-profile-name">${user.firstName} ${user.lastName}</h2>
+                <p class="modal-profile-username">@${user.username}</p>
+            </div>
+            <div class="modal-profile-details">
+                <div class="profile-detail-item">
+                    <strong>📧 Email:</strong>
+                    <span>${user.email}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📍 Address:</strong>
+                    <span>${user.address.address}, ${user.address.city}, ${user.address.state} ${user.address.postalCode}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📞 Phone:</strong>
+                    <span>${user.phone}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>🎂 Age:</strong>
+                    <span>${user.age} years old</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>👁️ Eye Color:</strong>
+                    <span>${user.eyeColor}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📏 Height:</strong>
+                    <span>${user.height} cm</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>⚖️ Weight:</strong>
+                    <span>${user.weight} kg</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>🩸 Blood Type:</strong>
+                    <span>${user.bloodGroup}</span>
+                </div>
+            </div>
+        `;
+
+    } catch(error){
+        console.error('Error loading user profile:', error);
+        modalContent.innerHTML= '<div class="error-state">Failed to load profile. Please check your internet connection and try again.</div>';
+    }
+}
+
+// Modal setup and close functionality
+function setupModal(){
+    const modal = document.getElementById('profile-modal');
+    const closeBtn = documento.querySelector('.close-modal');
+
+    // Close modal when clicking x
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside the modal
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+}
+
+
+
+
+
+
+
+
+
+

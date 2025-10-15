@@ -30,7 +30,6 @@
             <div id="posts-container"></div>
             <div id="loading-spinner" class="spinner hidden">
                 <div class="spinner-circle"></div>
-                <p>Loading posts...</p>
             </div>
             <div id="load-more-container" class="text-center">
                 <button id="load-more-btn" class="hidden">Load More Posts</button>
@@ -39,17 +38,23 @@
 
         <!-- Post Detail Section -->
         <section id = "post-detail" class="page hidden">
-            <button id="back-btn">Back</button>
-            <div id="post-content"></div>
-            <h3>Comments</h3>
-            <div id="comments-container"></div>
         </section>
         
         <!-- Profile Section -->
-        <section id="profile"></section>
+        <section id="profile" class="page hidden">
+            <button id="profile-back-btn">← Back</button>
+            <div id="profile-content"></div>
+            <h3>User Posts</h3>
+            <div id="user-posts-container"></div>
+        </section>
 
         <!-- User Profile Modal -->
-        <section id="profile-modal"></section>
+        <section id="profile-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <div id="modal-profile-content"></div>
+            </div>
+        </section>
 
          <!-- Contact Section  -->
         <section id="contact" class="page hidden" >
