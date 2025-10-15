@@ -368,6 +368,31 @@ async function loadComments(postId){
     }
 }
 
+// Modal setup and close functionality
+function setupModal(){
+    const modal = document.getElementById('profile-modal');
+    const closeBtn = document.querySelector('.close-modal');
+
+    // Close modal when clicking x
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside the modal
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+}
+
 // Open user profile (in modal)
 async function openUserProfileModal(UserId) {
     const modal = document.getElementById('profile-modal');
@@ -375,7 +400,7 @@ async function openUserProfileModal(UserId) {
 
     // Show modal
     modal.classList.remove('hidden');
-    modalContent.innerHtml = '<p style="text-align: center;">Loading profile...</p>';
+    modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
 
     try {
         // Fetch user details (will use if available on cache)
@@ -433,31 +458,6 @@ async function openUserProfileModal(UserId) {
         console.error('Error loading user profile:', error);
         modalContent.innerHTML= '<div class="error-state">Failed to load profile. Please check your internet connection and try again.</div>';
     }
-}
-
-// Modal setup and close functionality
-function setupModal(){
-    const modal = document.getElementById('profile-modal');
-    const closeBtn = documento.querySelector('.close-modal');
-
-    // Close modal when clicking x
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    // Close modal when clicking outside the modal
-    modal.addEventListener('click', (e) => {
-        if(e.target === modal){
-            modal.classList.add('hidden');
-        }
-    });
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-        if(e.target === modal){
-            modal.classList.add('hidden');
-        }
-    });
 }
 
 // View user profile with their posts

@@ -26,9 +26,13 @@ nav a {
     margin: 0 15px;
     text-decoration: none;
     font-weight: bold;
-    padding: 8px 16px;
+    padding: 10px 18px;
     border-radius: 5px;
     transition: all 0.3s ease;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 nav a.active { 
@@ -58,11 +62,14 @@ button {
     background: #35424a;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 12px 24px;
     cursor: pointer;
     margin-bottom: 20px;
     border-radius: 5px;
     font-size: 1em;
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
 }
 
 button:hover {
@@ -134,6 +141,10 @@ button:disabled {
     color: #35424a;
     margin-bottom: 10px;
     cursor: pointer;
+    padding: 8px 0;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
 }
 
 .post-card h3:hover {
@@ -158,6 +169,10 @@ button:disabled {
     font-weight: bold;
     cursor: pointer;
     color: #35424a;
+    padding: 4px 8px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
 }
 
 .author:hover {
@@ -266,11 +281,12 @@ button:disabled {
     border-radius: 12px;
     max-width: 600px;
     width: 90%;
-    max-height: 80vh;
+    max-height: 85vh;
     overflow-y: auto;
     position: relative;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     animation: slideIn 0.3s ease;
+    -webkit-overflow-scrolling: touch;
 }
 
 @keyframes slideIn {
@@ -293,6 +309,12 @@ button:disabled {
     color: #666;
     cursor: pointer;
     transition: color 0.3s ease;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
 }
 
 .close-modal:hover {
@@ -490,4 +512,155 @@ button:disabled {
     background: #f9f9f9;
     border-radius: 8px;
     font-style: italic;
+}
+
+/* Mobile-first responsive breakpoints */
+/* Base styles are mobile-first */
+
+/* Small tablets and large phones (landscape) */
+@media (max-width: 768px) {
+    header {
+        padding: 15px 10px;
+    }
+    
+    nav a {
+        margin: 0 8px;
+        padding: 12px 16px;
+        font-size: 0.95em;
+    }
+    
+    main {
+        padding: 0 15px;
+    }
+    
+    .post-card {
+        padding: 16px;
+    }
+    
+    .post-detail-card {
+        padding: 20px;
+    }
+    
+    .post-detail-card h2 {
+        font-size: 1.5em;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+        padding: 20px;
+        max-height: 90vh;
+    }
+    
+    .modal-profile-image {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Mobile phones */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.5em;
+        margin-bottom: 10px;
+    }
+    
+    nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+    
+    nav a {
+        margin: 0;
+        flex: 1 1 auto;
+        min-width: 80px;
+    }
+    
+    .contact h2 {
+        text-align: center;
+    }
+    
+    .contact-form {
+        padding: 20px 15px;
+    }
+
+    #submit-btn {
+        width: 100%;
+    }
+
+    .post-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .profile-image {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .modal-content {
+        border-radius: 8px;
+        padding: 15px;
+    }
+    
+    .close-modal {
+        right: 10px;
+        top: 10px;
+        font-size: 1.8em;
+    }
+    
+    .modal-profile-image {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .modal-profile-name {
+        font-size: 1.4em;
+    }
+    
+    button {
+        width: 100%;
+        padding: 14px 24px;
+    }
+    
+    #load-more-btn {
+        width: auto;
+        min-width: 200px;
+    }
+}
+
+/* Extra small devices */
+@media (max-width: 400px) {
+    header h1 {
+        font-size: 1.3em;
+    }
+    
+    nav a {
+        padding: 10px 12px;
+        font-size: 0.9em;
+    }
+    
+    .post-card {
+        padding: 12px;
+    }
+    
+    .post-card h3 {
+        font-size: 1.1em;
+    }
+    
+    .post-detail-card h2 {
+        font-size: 1.3em;
+    }
+    
+    .modal-profile-details {
+        font-size: 0.9em;
+    }
 }
