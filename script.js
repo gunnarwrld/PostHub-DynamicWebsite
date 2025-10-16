@@ -297,7 +297,7 @@ async function viewPostDetail(postId) {
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
 
         //Display post details
-        const tagsHTML = post.tags.map(tag => `<span class='tag´>${tag}</span>`).join('');
+        const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
         postContent.innerHTML = `
             <article class="post-detail-card">
