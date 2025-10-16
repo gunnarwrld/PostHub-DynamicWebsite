@@ -121,6 +121,10 @@ main {
     display: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 button {
     background: #35424a;
     color: white;
