@@ -387,7 +387,7 @@ function setupModal(){
 
     // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
-        if(e.target === modal){
+        if(e.key === 'Escape' && !modal.classList.contains('hidden')){
             modal.classList.add('hidden');
         }
     });
