@@ -342,7 +342,7 @@ async function loadComments(postId){
 
         const data = await response.json();
 
-        if (data.comments.lenght === 0){
+        if (data.comments.length === 0){
             commentsContainer.innerHTML = '<div class="empty-state">No comments available for this post.</div>';
             return;
         }
