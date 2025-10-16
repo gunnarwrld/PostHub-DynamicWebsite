@@ -38,7 +38,7 @@ Through this project, I'm developing and refining several key frontend developme
 - Incremental development approach
 - Code refactoring and cleanup
 
-## ✨ Features
+## Features
 
 - ** Post Browsing**: Load and display blog posts with pagination
 - ** Post Details**: View full post content with comments
@@ -92,7 +92,7 @@ DynamicWebsite02/
 └── README.md           # This file
 ```
 
-## 🎓 What This Project Taught Me
+## What This Project Taught Me
 
 ### **1. Asynchronous JavaScript Mastery**
 I learned to handle complex asynchronous operations, managing multiple API calls efficiently while maintaining a smooth user experience. Implementing proper loading states and error handling taught me the importance of user feedback during async operations.
