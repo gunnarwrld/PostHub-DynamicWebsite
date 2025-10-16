@@ -585,11 +585,9 @@ function setupContactForm(){
         form.reset();
 
         // Hide success message after 5 sec
-        setTimeout(() => {successMessage.classList.add('hidden');}, 5000)
-        });
+        setTimeout(() => {successMessage.classList.add('hidden');}, 5000);
+    });
 }
-
-
 
 
 
