@@ -394,7 +394,7 @@ function setupModal(){
 }
 
 // Open user profile (in modal)
-async function openUserProfileModal(UserId) {
+async function openUserProfileModal(userId) {
     const modal = document.getElementById('profile-modal');
     const modalContent = document.getElementById('modal-profile-content');
 
@@ -403,7 +403,7 @@ async function openUserProfileModal(UserId) {
     modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
 
     try {
-        // Fetch user details (will use if available on cache)
+        // Fetch user details (will use cache if available)
         const user = await fetchUser(userId);
 
         if(!user){
