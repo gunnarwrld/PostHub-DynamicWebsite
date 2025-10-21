@@ -12,6 +12,7 @@ const appData = {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
+    setupLoadMoreButton();
 
     // Check if there's a hash in URL (e.g., #posts)
     const hash = window.location.hash.slice(1) || 'home';
@@ -61,4 +62,206 @@ function updateActiveNav(viewName) {
     document.querySelectorAll('.nav-link').forEach(link => {
         link.classList.toggle('active', link.getAttribute('data-view') === viewName);
     });
+}
+
+// Function to fetch user data by ID
+async function fetchUser(userId) {
+    // Check if we already have this user cached
+    if (appData.users[userId]) {
+        return appData.users[userId]; // Return cached data
+    }
+    
+    // If not cached, fetch from API
+    try {
+        const response = await fetch(`https://dummyjson.com/users/${userId}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch user: ${response.status}`);
+        }
+        
+        const user = await response.json();
+        
+        // Cache the user for future use
+        appData.users[userId] = user;
+        
+        return user;
+    } catch (error) {
+        console.error(`Error fetching user ${userId}:`, error);
+        throw error; // Re-throw to handle in calling function
+    }
+}
+
+// Async function to fetch posts (initial load)
+async function loadPosts() {
+    // Prevent loading if already loading
+    if (appData.isLoading) return;
+    
+    const postsContainer = document.getElementById('posts-container');
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    const spinner = document.getElementById('loading-spinner');
+    
+    try {
+        // Set loading state
+        appData.isLoading = true;
+        showSpinner();
+        
+        // Fetch batch of posts from DummyJSON API
+        const response = await fetch(`https://dummyjson.com/posts?limit=${appData.postsPerPage}&skip=${appData.currentSkip}`);
+        
+        if (!response.ok) {
+            throw new Error(`Failed to fetch posts: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Store total number of posts available
+        appData.totalPosts = data.total;
+        
+        // Check if no posts were returned
+        if (data.posts.length === 0 && appData.posts.length === 0) {
+            postsContainer.innerHTML = '<div class="empty-state">📭 No posts available at the moment.</div>';
+            hideSpinner();
+            return;
+        }
+        
+        // Add new posts to our state
+        appData.posts.push(...data.posts);
+        
+        // Update skip counter
+        appData.currentSkip += data.posts.length;
+        
+        // Display each post with usernames concurrently!
+        await Promise.all(data.posts.map(post => displayPost(post)));
+        
+        // Hide spinner
+        hideSpinner();
+        
+        // Show or hide "Load More" button
+        updateLoadMoreButton();
+        
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        hideSpinner();
+        postsContainer.innerHTML = '<div class="error-state">❌ Failed to load posts. Please check your internet connection and try again.</div>';
+    } finally {
+        // Always reset loading state
+        appData.isLoading = false;
+    }
+}
+
+// Function to display a single post
+async function displayPost(post) {
+    // STEP 1: Get the container where we'll put this post
+    const postsContainer = document.getElementById('posts-container');
+    
+    // STEP 1.5: Fetch the user data for this post
+    try {
+        const user = await fetchUser(post.userId);
+        const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
+        
+        // STEP 2: Create a new article element
+        const postElement = document.createElement('article');
+        
+        postElement.className = 'post-card';
+        
+        // STEP 3: Process the tags array into HTML
+        const tagsHTML = post.tags.map(tag => 
+            `<span class="tag">${tag}</span>`
+        ).join('');
+        
+        // STEP 4: Build the HTML structure
+        postElement.innerHTML = `
+            <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+            <div class="post-meta">
+                <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
+                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                <span class="views">👁️ ${post.views} views</span>
+            </div>
+            <p class="post-body">${post.body}</p>
+            <div class="post-tags">${tagsHTML}</div>
+        `;
+        
+        // STEP 5: Add click event listeners
+        const postTitle = postElement.querySelector('.post-title');
+        const authorSpan = postElement.querySelector('.author');
+        
+        // Click on title → view post detail
+        postTitle.addEventListener('click', () => {
+            viewPostDetail(post.id); // Future function
+        });
+        
+        // Click on author → open modal with profile
+        authorSpan.addEventListener('click', () => {
+            openUserProfileModal(post.userId); // Future function
+        });
+        
+        // STEP 6: Add the post to the page
+        postsContainer.appendChild(postElement);
+    } catch (error) {
+        console.error('Error displaying post:', error);
+        // Still show the post even if user fetch fails
+        const postElement = document.createElement('article');
+        postElement.className = 'post-card';
+        postElement.innerHTML = `
+            <h3 class="post-title">${post.title}</h3>
+            <div class="post-meta">
+                <span class="author">👤 User ${post.userId}</span>
+                <span class="reactions">❤️ ${post.reactions?.likes ?? 'N/A'} likes</span>
+            </div>
+            <p class="post-body">${post.body}</p>
+        `;
+        postsContainer.appendChild(postElement);
+    }
+}
+
+// Load more posts when button is clicked
+async function loadMorePosts() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    // Disable button while loading
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = 'Loading...';
+    
+    await loadPosts();
+    
+    // Re-enable button
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = 'Load More Posts';
+}
+
+// Setup the "Load More" button
+function setupLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMorePosts);
+    }
+}
+
+// Show/hide Load More button based on available posts
+function updateLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    
+    if (appData.currentSkip >= appData.totalPosts) {
+        // No more posts to load
+        loadMoreBtn.classList.add('hidden');
+    } else {
+        // More posts available
+        loadMoreBtn.classList.remove('hidden');
+    }
+}
+
+// Show loading spinner
+function showSpinner() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.classList.remove('hidden');
+    }
+}
+
+// Hide loading spinner
+function hideSpinner() {
+    const spinner = document.getElementById('loading-spinner');
+    if (spinner) {
+        spinner.classList.add('hidden');
+    }
 }
