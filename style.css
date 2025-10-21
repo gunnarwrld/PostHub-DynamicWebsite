@@ -184,3 +184,53 @@ button:disabled {
     font-size: 0.85em;
     font-weight: 500;
 }
+
+/* Post Detail Styles */
+.post-detail-card {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.post-detail-card h2 {
+    color: #35424a;
+    margin-bottom: 15px;
+    font-size: 2em;
+}
+
+.post-full-body {
+    font-size: 1.1em;
+    line-height: 1.8;
+    margin-top: 20px;
+    color: #333;
+}
+
+/* Comment Styles */
+.comment-card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #35424a;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    color: #35424a;
+}
+
+.comment-likes {
+    color: #e8491d;
+    font-weight: bold;
+}
+
+.comment-body {
+    color: #555;
+    line-height: 1.6;
+}
+

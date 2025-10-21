@@ -265,3 +265,99 @@ function hideSpinner() {
         spinner.classList.add('hidden');
     }
 }
+
+// View post detail with comments
+async function viewPostDetail(postId) {
+    showView('post-detail')
+
+    const postContent = document.getElementById('post-content');
+    const commentsContainer = document.getElementById('comments-container');
+
+    // Show loading state
+    postContent.innerHTML = '<p>Loading post...</p>';
+    commentsContainer.innerHTML = '';
+
+    try{
+        const postResponse = await fetch(`https://dummyjson.com/posts/${postId}`);
+
+        if (!postResponse.ok){
+            throw new Error(`Failed to fetch post: ${postResponse.status}`);
+        }
+
+        const post = await postResponse.json();
+
+        // Store the current post
+        appData.currentPost = post;
+
+        // Fetch the author
+        const user = await fetchUser(post.userId);
+        const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
+
+        //Display post details
+        const tagsHTML = post.tags.map(tag => `<span class='tag'>${tag}</span>`).join('');
+        postContent.innerHTML = `
+            <article class="post-detail-card">
+                <h2>${post.title}</h2>
+                <div class="post-meta">
+                    <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
+                    <span class="reactions">❤️ ${post.reactions.likes} likes | 👎 ${post.reactions.dislikes} dislikes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <div class="post-tags">${tagsHTML}</div>
+                <p class="post-full-body">${post.body}</p>
+            </article>
+        `;
+
+        // Add click event to author in detail view
+        const authorInDetail = postContent.querySelector('.author');
+        if(authorInDetail){
+            authorInDetail.addEventListener('click', () => {
+                openUserProfileModal(post.userId);
+            })
+        }
+
+        // Load comments
+        await loadComments(postId);
+    } catch(error){
+        console.error('Error loading post detail:', error);
+        postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
+    }
+}
+
+async function loadComments(postId){
+    const commentsContainer = document.getElementById('comments-container');
+    commentsContainer.innerHTML = '<p>Loading comments...</p>'
+
+    try{
+        const response = await fetch(`https://dummyjson.com/comments/post/${postId}`);
+        if(!response.ok){
+            throw new Error(`Failed to fetch comments: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.comments.length === 0){
+            commentsContainer.innerHTML = '<div class="empty-state">No comments available for this post.</div>';
+            return;
+        }
+
+        commentsContainer.innerHTML = '';
+
+        data.comments.forEach(comment => {
+            const commentElement = document.createElement('div')
+            commentElement.className = 'comment-card';
+            commentElement.innerHTML = `
+                <div class="comment-header">
+                    <strong>👤 ${comment.user.username}</strong>
+                    <span class="comment-likes">❤️ ${comment.likes}</span>
+                </div>
+                <p class="comment-body">${comment.body}</p>
+            `;
+            commentsContainer.appendChild(commentElement);
+        })
+    } catch (error){
+        console.error('Error loading comments:', error);
+        commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
+    }
+}
+
