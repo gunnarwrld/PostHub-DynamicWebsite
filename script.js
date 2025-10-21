@@ -263,5 +263,7 @@ function showSpinner() {
 // Hide loading spinner
 function hideSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.add('hidden');
+    if (spinner) {
+        spinner.classList.add('hidden');
+    }
 }
