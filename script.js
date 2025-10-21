@@ -352,7 +352,7 @@ async function loadComments(postId){
             commentsContainer.appendChild(commentElement);
         })
     } catch (error){
-        console.error('Error loading comments;', error);
+        console.error('Error loading comments:', error);
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
     }
 }
