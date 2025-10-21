@@ -255,7 +255,9 @@ function updateLoadMoreButton() {
 // Show loading spinner
 function showSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.remove('hidden');
+    if (spinner) {
+        spinner.classList.remove('hidden');
+    }
 }
 
 // Hide loading spinner
