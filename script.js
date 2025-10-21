@@ -208,7 +208,7 @@ async function displayPost(post) {
             <h3 class="post-title">${post.title}</h3>
             <div class="post-meta">
                 <span class="author">👤 User ${post.userId}</span>
-                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                <span class="reactions">❤️ ${post.reactions?.likes ?? 'N/A'} likes</span>
             </div>
             <p class="post-body">${post.body}</p>
         `;
