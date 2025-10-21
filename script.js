@@ -262,7 +262,7 @@ function hideSpinner() {
     spinner.classList.add('hidden');
 }
 
-// View post detail wit comments
+// View post detail with comments
 async function viewPostDetail(postId) {
     showView('post-detail')
 
