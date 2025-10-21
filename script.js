@@ -130,10 +130,8 @@ async function loadPosts() {
         // Update skip counter
         appData.currentSkip += data.posts.length;
         
-        // Display each post with usernames!
-        for (const post of data.posts) {
-            await displayPost(post);
-        }
+        // Display each post with usernames concurrently!
+        await Promise.all(data.posts.map(post => displayPost(post)));
         
         // Hide spinner
         hideSpinner();
