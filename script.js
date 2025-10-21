@@ -304,7 +304,7 @@ async function viewPostDetail(postId) {
             </article>
         `;
 
-        // Add click event to auhot in detail view
+        // Add click event to author in detail view
         const authorInDetail = postContent.querySelector('.author');
         if(authorInDetail){
             authorInDetail.addEventListener('click', () => {
