@@ -234,7 +234,9 @@ async function loadMorePosts() {
 // Setup the "Load More" button
 function setupLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more-btn');
-    loadMoreBtn.addEventListener('click', loadMorePosts);
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMorePosts);
+    }
 }
 
 // Show/hide Load More button based on available posts
