@@ -13,7 +13,7 @@ const appData = {
 // ==================== Helper Functions for Safe DOM Creation ====================
 
 /**
- * Creates ana article with specified class
+ * Creates an article with specified class
  */
 function createArticle(className = '') {
     const article = document.createElement('article');
