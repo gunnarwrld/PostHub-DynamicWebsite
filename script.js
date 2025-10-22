@@ -10,6 +10,75 @@ const appData = {
     currentUser: null // Store currently viewed user
 };
 
+// ==================== Helper Functions for Safe DOM Creation ====================
+
+/**
+ * Creates ana article with specified class
+ */
+function createArticle(className = '') {
+    const article = document.createElement('article');
+    if (className) article.className = className;
+    return article;
+}
+/**
+ * Creates a div with specified class and optional text content
+ */
+function createDiv(className = '', textContent = '') {
+    const div = document.createElement('div');
+    if (className) div.className = className;
+    if (textContent) div.textContent = textContent;
+    return div;
+}
+
+/**
+ * Creates a paragraph element with optional text content
+ */
+function createParagraph(textContent = '') {
+    const p = document.createElement('p');
+    if (textContent) p.textContent = textContent;
+    return p;
+}
+
+/**
+ * Creates a span element with optional class and text content
+ */
+function createSpan(className = '', textContent = '') {
+    const span = document.createElement('span');
+    if (className) span.className = className;
+    if (textContent) span.textContent = textContent;
+    return span;
+}
+
+/**
+ * Safely creates an image element with src, alt, and optional class
+ */
+function createImage(src, alt, className = '') {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = alt;
+    if (className) img.className = className;
+    return img;
+}
+
+/**
+ * Safely creates a heading element
+ */
+function createHeading(level, textContent, className = '') {
+    const heading = document.createElement(`h${level}`);
+    heading.textContent = textContent;
+    if (className) heading.className = className;
+    return heading;
+}
+
+/**
+ * Clears all children from a container
+ */
+function clearContainer(container) {
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupLoadMoreButton();
@@ -104,8 +173,6 @@ async function loadPosts() {
     if (appData.isLoading) return;
     
     const postsContainer = document.getElementById('posts-container');
-    const loadMoreBtn = document.getElementById('load-more-btn');
-    const spinner = document.getElementById('loading-spinner');
     
     try {
         // Set loading state
@@ -126,7 +193,8 @@ async function loadPosts() {
         
         // Check if no posts were returned
         if (data.posts.length === 0 && appData.posts.length === 0) {
-            postsContainer.innerHTML = '<div class="empty-state">No posts available at the moment.</div>';
+            const emptyState = createDiv('empty-state', 'No posts available at the moment.');
+            postsContainer.appendChild(emptyState);
             hideSpinner();
             return;
         }
@@ -149,7 +217,8 @@ async function loadPosts() {
     } catch (error) {
         console.error('Error loading posts:', error);
         hideSpinner();
-        postsContainer.innerHTML = '<div class="error-state">Failed to load posts. Please check your internet connection and try again.</div>';
+        const errorState = createDiv('error-state', 'Failed to load posts. Please check your internet connection and try again.');
+        postsContainer.appendChild(errorState);
     } finally {
         // Always reset loading state
         appData.isLoading = false;
@@ -167,57 +236,71 @@ async function displayPost(post) {
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
         
         // STEP 2: Create a new article element
-        const postElement = document.createElement('article');
+        const postElement = createArticle('post-card');
         
-        postElement.className = 'post-card';
+        // STEP 3: Create title
+        const title = createHeading(3, post.title, 'post-title');
+        title.dataset.postId = post.id;
+        title.style.cursor = 'pointer';
+        title.addEventListener('click', () => viewPostDetail(post.id));
         
-        // STEP 3: Process the tags array into HTML
-        const tagsHTML = post.tags.map(tag => 
-            `<span class="tag">${tag}</span>`
-        ).join('');
+        // STEP 4: Create post meta
+        const postMeta = createDiv('post-meta');
         
-        // STEP 4: Build the HTML structure
-        postElement.innerHTML = `
-            <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
-            <div class="post-meta">
-                <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
-                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
-                <span class="views">👁️ ${post.views} views</span>
-            </div>
-            <p class="post-body">${post.body}</p>
-            <div class="post-tags">${tagsHTML}</div>
-        `;
+        // Author span
+        const author = createSpan('author', `👤 ${authorName}`);
+        author.dataset.userId = post.userId;
+        author.style.cursor = 'pointer';
+        author.addEventListener('click', () => openUserProfileModal(post.userId));
+        postMeta.appendChild(author);
         
-        // STEP 5: Add click event listeners
-        const postTitle = postElement.querySelector('.post-title');
-        const authorSpan = postElement.querySelector('.author');
+        // Reactions span
+        const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes`);
+        postMeta.appendChild(reactions);
         
-        // Click on title → view post detail
-        postTitle.addEventListener('click', () => {
-            viewPostDetail(post.id);
+        // Views span
+        const views = createSpan('views', `👁️ ${post.views} views`);
+        postMeta.appendChild(views);
+        
+        // STEP 5: Create body
+        const body = createParagraph(post.body);
+        body.className = 'post-body';
+        
+        // STEP 6: Create tags
+        const tagsContainer = createDiv('post-tags');
+        post.tags.forEach(tag => {
+            const tagSpan = createSpan('tag', tag);
+            tagsContainer.appendChild(tagSpan);
         });
         
-        // Click on author → open modal with profile
-        authorSpan.addEventListener('click', () => {
-            openUserProfileModal(post.userId);
-        });
+        // STEP 7: Append all to post element
+        postElement.appendChild(title);
+        postElement.appendChild(postMeta);
+        postElement.appendChild(body);
+        postElement.appendChild(tagsContainer);
         
-        // STEP 6: Add the post to the page
+        // STEP 8: Add the post to the page
         postsContainer.appendChild(postElement);
     } catch (error) {
         console.error('Error displaying post:', error);
         // Still show the post even if user fetch fails
-        const postElement = document.createElement('article');
-        postElement.className = 'post-card';
-        postElement.innerHTML = `
-            <h3 class="post-title">${post.title}</h3>
-            <div class="post-meta">
-                <span class="author">👤 User ${post.userId}</span>
-                <span class="reactions">❤️ ${post.reactions?.likes ?? 'N/A'} likes</span>
-            </div>
-            <p class="post-body">${post.body}</p>
-        `;
-        postsContainer.appendChild(postElement);
+        const postElement = createArticle('post-card');
+        
+        const title = createHeading(3, post.title, 'post-title');
+        postElement.appendChild(title);
+        
+        const postMeta = createDiv('post-meta');
+        const author = createSpan('author', `👤 User ${post.userId}`);
+        const reactions = createSpan('reactions', `❤️ ${post.reactions?.likes ?? 'N/A'} likes`);
+        postMeta.appendChild(author);
+        postMeta.appendChild(reactions);
+        postElement.appendChild(postMeta);
+        
+        const body = createParagraph(post.body);
+        body.className = 'post-body';
+        postElement.appendChild(body);
+        
+        document.getElementById('posts-container').appendChild(postElement);
     }
 }
 
@@ -280,9 +363,12 @@ async function viewPostDetail(postId) {
     const postContent = document.getElementById('post-content');
     const commentsContainer = document.getElementById('comments-container');
 
+    // Clear containers
+    clearContainer(postContent);
+    clearContainer(commentsContainer);
+    
     // Show loading state
-    postContent.innerHTML = '<p>Loading post...</p>';
-    commentsContainer.innerHTML = '';
+    postContent.appendChild(createParagraph('Loading post...'));
 
     try{
         const postResponse = await fetch(`https://dummyjson.com/posts/${postId}`);
@@ -300,42 +386,64 @@ async function viewPostDetail(postId) {
         const user = await fetchUser(post.userId);
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
 
-        //Display post details
-        const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+        // Clear loading state
+        clearContainer(postContent);
 
-        postContent.innerHTML = `
-            <article class="post-detail-card">
-                <h2>${post.title}</h2>
-                <div class="post-meta">
-                    <span class="author" data-user-id="${post.userId}">👤 ${authorName}</span>
-                    <span class="reactions">❤️ ${post.reactions.likes} likes | 👎 ${post.reactions.dislikes} dislikes</span>
-                    <span class="views">👁️ ${post.views} views</span>
-                </div>
-                <div class="post-tags">${tagsHTML}</div>
-                <p class="post-full-body">${post.body}</p>
-            </article>
-        `;
+        // Create article element
+        const article = createArticle('post-detail-card');
 
-        // Add click event to author in detail view
-        const authorInDetail = postContent.querySelector('.author');
-        if(authorInDetail){
-            authorInDetail.addEventListener('click', () => {
-                openUserProfileModal(post.userId);
-            });
-        }
+        // Add title
+        const title = createHeading(2, post.title);
+        article.appendChild(title);
+
+        // Create post meta
+        const postMeta = createDiv('post-meta');
+        
+        const author = createSpan('author', `👤 ${authorName}`);
+        author.dataset.userId = post.userId;
+        author.addEventListener('click', () => openUserProfileModal(post.userId));
+        postMeta.appendChild(author);
+        
+        const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes | 👎 ${post.reactions.dislikes} dislikes`);
+        postMeta.appendChild(reactions);
+        
+        const views = createSpan('views', `👁️ ${post.views} views`);
+        postMeta.appendChild(views);
+        
+        article.appendChild(postMeta);
+
+        // Add tags
+        const tagsContainer = createDiv('post-tags');
+        post.tags.forEach(tag => {
+            const tagSpan = createSpan('tag', tag);
+            tagsContainer.appendChild(tagSpan);
+        });
+        article.appendChild(tagsContainer);
+
+        // Add body
+        const body = createParagraph(post.body);
+        body.className = 'post-full-body';
+        article.appendChild(body);
+
+        postContent.appendChild(article);
 
         // Load comments
         await loadComments(postId);
 
     } catch(error){
         console.error('Error loading post detail:', error);
-        postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
+        clearContainer(postContent);
+        const errorState = createDiv('error-state', 'Failed to load post. Please check your connection and try again.');
+        postContent.appendChild(errorState);
     }
 }
 
 async function loadComments(postId){
     const commentsContainer = document.getElementById('comments-container');
-    commentsContainer.innerHTML = '<p>Loading comments...</p>';
+    clearContainer(commentsContainer);
+    
+    // Show loading state
+    commentsContainer.appendChild(createParagraph('Loading comments...'));
 
     try{
         const response = await fetch(`https://dummyjson.com/comments/post/${postId}`);
@@ -347,28 +455,41 @@ async function loadComments(postId){
         const data = await response.json();
 
         if (data.comments.length === 0){
-            commentsContainer.innerHTML = '<div class="empty-state">No comments available for this post.</div>';
+            clearContainer(commentsContainer);
+            const emptyState = createDiv('empty-state', 'No comments available for this post.');
+            commentsContainer.appendChild(emptyState);
             return;
         }
 
-        commentsContainer.innerHTML = '';
+        clearContainer(commentsContainer);
 
         data.comments.forEach(comment => {
-            const commentElement = document.createElement('div')
-            commentElement.className = 'comment-card';
-            commentElement.innerHTML = `
-                <div class="comment-header">
-                    <strong>👤 ${comment.user.username}</strong>
-                    <span class="comment-likes">❤️ ${comment.likes}</span>
-                </div>
-                <p class="comment-body">${comment.body}</p>
-            `;
+            const commentElement = createDiv('comment-card');
+            
+            // Comment header
+            const header = createDiv('comment-header');
+            const username = document.createElement('strong');
+            username.textContent = `👤 ${comment.user.username}`;
+            header.appendChild(username);
+            
+            const likes = createSpan('comment-likes', `❤️ ${comment.likes}`);
+            header.appendChild(likes);
+            
+            commentElement.appendChild(header);
+            
+            // Comment body
+            const body = createParagraph(comment.body);
+            body.className = 'comment-body';
+            commentElement.appendChild(body);
+            
             commentsContainer.appendChild(commentElement);
         });
 
     } catch (error){
         console.error('Error loading comments:', error);
-        commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
+        clearContainer(commentsContainer);
+        const errorState = createDiv('error-state', 'Failed to load comments. Please check your connection and try again.');
+        commentsContainer.appendChild(errorState);
     }
 }
 
@@ -404,63 +525,69 @@ async function openUserProfileModal(userId) {
 
     // Show modal
     modal.classList.remove('hidden');
-    modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
+    clearContainer(modalContent);
+    
+    // Show loading state
+    modalContent.appendChild(createParagraph('Loading profile...'));
 
     try {
         // Fetch user details (will use cache if available)
         const user = await fetchUser(userId);
 
         if(!user){
-            modalContent.innerHTML = '<div class="error-state">User not found</div>';
+            clearContainer(modalContent);
+            const errorState = createDiv('error-state', 'User not found');
+            modalContent.appendChild(errorState);
             return;
         }
 
-        // Display user profile in modal with full details
-        modalContent.innerHTML = `
-            <div class="modal-profile-header">
-                <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="modal-profile-image">
-                <h2 class="modal-profile-name">${user.firstName} ${user.lastName}</h2>
-                <p class="modal-profile-username">@${user.username}</p>
-            </div>
-            <div class="modal-profile-details">
-                <div class="profile-detail-item">
-                    <strong>📧 Email:</strong>
-                    <span>${user.email}</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>📍 Address:</strong>
-                    <span>${user.address.address}, ${user.address.city}, ${user.address.state} ${user.address.postalCode}</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>📞 Phone:</strong>
-                    <span>${user.phone}</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>🎂 Age:</strong>
-                    <span>${user.age} years old</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>👁️ Eye Color:</strong>
-                    <span>${user.eyeColor}</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>📏 Height:</strong>
-                    <span>${user.height} cm</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>⚖️ Weight:</strong>
-                    <span>${user.weight} kg</span>
-                </div>
-                <div class="profile-detail-item">
-                    <strong>🩸 Blood Type:</strong>
-                    <span>${user.bloodGroup}</span>
-                </div>
-            </div>
-        `;
+        clearContainer(modalContent);
+
+        // Create profile header
+        const profileHeader = createDiv('modal-profile-header');
+        
+        const profileImage = createImage(user.image, `${user.firstName} ${user.lastName}`, 'modal-profile-image');
+        profileHeader.appendChild(profileImage);
+        
+        const profileName = createHeading(2, `${user.firstName} ${user.lastName}`, 'modal-profile-name');
+        profileHeader.appendChild(profileName);
+        
+        const profileUsername = createParagraph(`@${user.username}`);
+        profileUsername.className = 'modal-profile-username';
+        profileHeader.appendChild(profileUsername);
+        
+        modalContent.appendChild(profileHeader);
+
+        // Create profile details container
+        const profileDetails = createDiv('modal-profile-details');
+
+        // Helper function to add detail items
+        const addDetailItem = (label, value) => {
+            const item = createDiv('profile-detail-item');
+            const labelEl = document.createElement('strong');
+            labelEl.textContent = label;
+            item.appendChild(labelEl);
+            const valueEl = createSpan('', value);
+            item.appendChild(valueEl);
+            profileDetails.appendChild(item);
+        };
+
+        addDetailItem('📧 Email:', user.email);
+        addDetailItem('📍 Address:', `${user.address.address}, ${user.address.city}, ${user.address.state} ${user.address.postalCode}`);
+        addDetailItem('📞 Phone:', user.phone);
+        addDetailItem('🎂 Age:', `${user.age} years old`);
+        addDetailItem('👁️ Eye Color:', user.eyeColor);
+        addDetailItem('📏 Height:', `${user.height} cm`);
+        addDetailItem('⚖️ Weight:', `${user.weight} kg`);
+        addDetailItem('🩸 Blood Type:', user.bloodGroup);
+
+        modalContent.appendChild(profileDetails);
 
     } catch(error){
         console.error('Error loading user profile:', error);
-        modalContent.innerHTML= '<div class="error-state">Failed to load profile. Please check your internet connection and try again.</div>';
+        clearContainer(modalContent);
+        const errorState = createDiv('error-state', 'Failed to load profile. Please check your internet connection and try again.');
+        modalContent.appendChild(errorState);
     }
 }
 
@@ -472,55 +599,89 @@ async function viewUserProfile(userId) {
     const profileContent = document.getElementById('profile-content');
     const userPostsContainer = document.getElementById('user-posts-container');
 
-    //Show loading state
-    profileContent.innerHTML = '<p>Loading profile...</p>';
-    userPostsContainer.innerHTML ='';
+    // Clear containers
+    clearContainer(profileContent);
+    clearContainer(userPostsContainer);
+    
+    // Show loading state
+    profileContent.appendChild(createParagraph('Loading profile...'));
 
     try {
         // Fetch user details
         const user = await fetchUser(userId);
 
         if(!user){
-            profileContent.innerHTML = '<div class="error-state">User not found.</div>';
+            clearContainer(profileContent);
+            const errorState = createDiv('error-state', 'User not found.');
+            profileContent.appendChild(errorState);
             return;
         }
 
         // Store current user 
         appData.currentUser = user;
 
-        // Display user profile
-        profileContent.innerHTML = `
-            <div class="profile-card">
-                <div class="profile-header">
-                    <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="profile-image">
-                    <div class="profile-info">
-                        <h2>${user.firstName} ${user.lastName}</h2>
-                        <p class="profile-username">@${user.username}</p>
-                        <p class="profile-email">📧 ${user.email}</p>
-                        <p class="profile-details">
-                            📍 ${user.address.city}, ${user.address.state}<br>
-                            🎂 Age: ${user.age} | 
-                            👁️ ${user.eyeColor} eyes | 
-                            ${user.height}cm
-                        </p>
-                    </div>
-                </div>
-            </div>
-        `;
+        // Clear loading and create profile card
+        clearContainer(profileContent);
+        
+        const profileCard = createDiv('profile-card');
+        const profileHeader = createDiv('profile-header');
+        
+        // Profile image
+        const profileImage = createImage(user.image, `${user.firstName} ${user.lastName}`, 'profile-image');
+        profileHeader.appendChild(profileImage);
+        
+        // Profile info
+        const profileInfo = createDiv('profile-info');
+        
+        const name = createHeading(2, `${user.firstName} ${user.lastName}`);
+        profileInfo.appendChild(name);
+        
+        const username = createParagraph(`@${user.username}`);
+        username.className = 'profile-username';
+        profileInfo.appendChild(username);
+        
+        const email = createParagraph(`📧 ${user.email}`);
+        email.className = 'profile-email';
+        profileInfo.appendChild(email);
+        
+        const details = createParagraph();
+        details.className = 'profile-details';
+        
+        // Create address line
+        const addressLine = createSpan('', `📍 ${user.address.city}, ${user.address.state}`);
+        details.appendChild(addressLine);
+        
+        // Add line break
+        details.appendChild(document.createElement('br'));
+        
+        // Create age and eye color line
+        const detailsLine = createSpan('', `🎂 Age: ${user.age} | 👁️ ${user.eyeColor} eyes | ${user.height}cm`);
+        details.appendChild(detailsLine);
+        
+        profileInfo.appendChild(details);
+        
+        profileHeader.appendChild(profileInfo);
+        profileCard.appendChild(profileHeader);
+        profileContent.appendChild(profileCard);
 
-        // Load user´s posts
+        // Load user's posts
         await loadUserPosts(userId);
 
     } catch (error) {
         console.error('Error loading profile', error);
-        profileContent.innerHTML = '<div class="error-state">Failed to load profile. Please check your connection and try again.</div>';        
+        clearContainer(profileContent);
+        const errorState = createDiv('error-state', 'Failed to load profile. Please check your connection and try again.');
+        profileContent.appendChild(errorState);
     }
 }
 
 // Load all posts by a specific user
 async function loadUserPosts(userId) {
     const userPostsContainer = document.getElementById('user-posts-container');
-    userPostsContainer.innerHTML = '<p>Loading user posts...</p>';
+    clearContainer(userPostsContainer);
+    
+    // Show loading state
+    userPostsContainer.appendChild(createParagraph('Loading user posts...'));
     
     try {
         const response = await fetch(`https://dummyjson.com/posts/user/${userId}`);
@@ -532,40 +693,52 @@ async function loadUserPosts(userId) {
         const data = await response.json();
         
         if (data.posts.length === 0) {
-            userPostsContainer.innerHTML = '<div class="empty-state">No posts available from this user.</div>';
+            clearContainer(userPostsContainer);
+            const emptyState = createDiv('empty-state', 'No posts available from this user.');
+            userPostsContainer.appendChild(emptyState);
             return;
         }
         
-        userPostsContainer.innerHTML = '';
+        clearContainer(userPostsContainer);
         
         for (const post of data.posts) {
-            const postElement = document.createElement('article');
-            postElement.className = 'post-card';
+            const postElement = createArticle('post-card');
             
-            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            // Title
+            const title = createHeading(3,post.title,'post-title');
+            title.dataset.postId = post.id;
+            title.addEventListener('click', () => viewPostDetail(post.id));
+            postElement.appendChild(title);
             
-            postElement.innerHTML = `
-                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
-                <div class="post-meta">
-                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
-                    <span class="views">👁️ ${post.views} views</span>
-                </div>
-                <p class="post-body">${post.body}</p>
-                <div class="post-tags">${tagsHTML}</div>
-            `;
+            // Meta
+            const postMeta = createDiv('post-meta');
+            const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes`);
+            const views = createSpan('views', `👁️ ${post.views} views`);
+            postMeta.appendChild(reactions);
+            postMeta.appendChild(views);
+            postElement.appendChild(postMeta);
             
-            // Add click event to view post detail
-            const postTitle = postElement.querySelector('.post-title');
-            postTitle.addEventListener('click', () => {
-                viewPostDetail(post.id);
+            // Body
+            const body = createParagraph(post.body);
+            body.className = 'post-body';
+            postElement.appendChild(body);
+            
+            // Tags
+            const tagsContainer = createDiv('post-tags');
+            post.tags.forEach(tag => {
+                const tagSpan = createSpan('tag', tag);
+                tagsContainer.appendChild(tagSpan);
             });
+            postElement.appendChild(tagsContainer);
             
             userPostsContainer.appendChild(postElement);
         }
         
     } catch (error) {
         console.error('Error loading user posts:', error);
-        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your connection and try again.</div>';
+        clearContainer(userPostsContainer);
+        const errorState = createDiv('error-state', 'Failed to load user posts. Please check your connection and try again.');
+        userPostsContainer.appendChild(errorState);
     }
 }
 
