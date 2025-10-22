@@ -466,7 +466,7 @@ async function viewUserProfile(userId) {
         const user = await fetchUser(userId);
 
         if(!user){
-            profileContent.innerHTML = '<div class="error-states">User not found.</div>';
+            profileContent.innerHTML = '<div class="error-state">User not found.</div>';
             return;
         }
 
