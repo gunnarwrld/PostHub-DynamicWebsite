@@ -137,10 +137,8 @@ async function loadPosts() {
         // Update skip counter
         appData.currentSkip += data.posts.length;
         
-        // Display each post with usernames!
-        for (const post of data.posts) {
-            await displayPost(post);
-        }
+        // Display each post with usernames concurrently!
+        await Promise.all(data.posts.map(post => displayPost(post)));
         
         // Hide spinner
         hideSpinner();
@@ -215,7 +213,7 @@ async function displayPost(post) {
             <h3 class="post-title">${post.title}</h3>
             <div class="post-meta">
                 <span class="author">👤 User ${post.userId}</span>
-                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                <span class="reactions">❤️ ${post.reactions?.likes ?? 'N/A'} likes</span>
             </div>
             <p class="post-body">${post.body}</p>
         `;
@@ -241,7 +239,9 @@ async function loadMorePosts() {
 // Setup the "Load More" button
 function setupLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more-btn');
-    loadMoreBtn.addEventListener('click', loadMorePosts);
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMorePosts);
+    }
 }
 
 // Show/hide Load More button based on available posts
@@ -260,16 +260,20 @@ function updateLoadMoreButton() {
 // Show loading spinner
 function showSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.remove('hidden');
+    if (spinner) {
+        spinner.classList.remove('hidden');
+    }
 }
 
 // Hide loading spinner
 function hideSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.add('hidden');
+    if (spinner) {
+        spinner.classList.add('hidden');
+    }
 }
 
-// View post detail wit comments
+// View post detail with comments
 async function viewPostDetail(postId) {
     showView('post-detail')
 
@@ -312,7 +316,7 @@ async function viewPostDetail(postId) {
             </article>
         `;
 
-        // Add click event to auhot in detail view
+        // Add click event to author in detail view
         const authorInDetail = postContent.querySelector('.author');
         if(authorInDetail){
             authorInDetail.addEventListener('click', () => {
@@ -363,7 +367,7 @@ async function loadComments(postId){
         });
 
     } catch (error){
-        console.error('Error loading comments;', error);
+        console.error('Error loading comments:', error);
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
     }
 }
@@ -477,7 +481,7 @@ async function viewUserProfile(userId) {
         const user = await fetchUser(userId);
 
         if(!user){
-            profileContent.innerHTML = '<div class="error-states">User not found.</div>';
+            profileContent.innerHTML = '<div class="error-state">User not found.</div>';
             return;
         }
 
@@ -568,6 +572,7 @@ async function loadUserPosts(userId) {
 // Contact Form
 function setupContactForm(){
     const form = document.getElementById('contact-form');
+    let successTimeoutId = null;
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -577,6 +582,11 @@ function setupContactForm(){
         const email = document.getElementById('email').value.trim();
         const message = document.getElementById('message').value.trim();
 
+        // Clear any existing timeout to prevent overlapping
+        if (successTimeoutId) {
+            clearTimeout(successTimeoutId);
+        }
+
         // Success message 
         const successMessage = document.getElementById('success-message');
         successMessage.classList.remove('hidden');
@@ -584,11 +594,44 @@ function setupContactForm(){
         // Reset form
         form.reset();
 
-        // Hide success message after 5 sec
-        setTimeout(() => {successMessage.classList.add('hidden');}, 5000);
+        // Hide success message after 5 sec and store timeout ID
+        successTimeoutId = setTimeout(() => {
+            successMessage.classList.add('hidden');
+            successTimeoutId = null;
+        }, 5000);
     });
 }
 
+        for(const post of data.posts){
+            const postElement = document.createElement('article');
+            postElement.className = 'post-card';
+
+            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+            postElement.innerHTML = `
+                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+                <div class="post-meta">
+                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <p class="post-body">${post.body}</p>
+                <div class="post-tags">${tagsHTML}</div>
+            `;
+
+            // Add click event to view post detail
+            const postTitle = postElement.querySelector('.post-title');
+            postTitle.addEventListener('click', () => {
+                viewPostDetail(post.id);
+            });
+
+            userPostsContainer.appendChild(postElement);
+        }
+
+    } catch (error) {
+        console.error('Error loading user posts.', error);
+        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
+    }
+}
 
 
 

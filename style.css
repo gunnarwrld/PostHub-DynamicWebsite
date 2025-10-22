@@ -105,12 +105,12 @@ main {
 .instructions ul {
     margin-top: 15px;
     margin-left: 20px;
-    list-style: none;
 }
 
 .instructions li {
     margin-bottom: 10px;
     line-height: 1.8;
+    padding-left: 12px;
 }
 
 .page{
@@ -516,10 +516,6 @@ button:disabled {
     min-height: 400px;
 }
 
-#back-btn {
-    margin-bottom: 20px;
-}
-
 /* Contact Form Styles */
 #contact {
     max-width: 600px;
@@ -736,9 +732,6 @@ button:disabled {
     }
     
     nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
         gap: 8px;
         padding: 0 10px;
     }
