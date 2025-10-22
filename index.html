@@ -16,8 +16,8 @@
             <a href="#contact" class="nav-link" data-view="contact">Contact</a>
         </nav>
     </header>
-    <main id="app">
 
+    <main id="app">
         <!-- Home Section -->
         <section id="home" class="page">
             <article class="intro">
@@ -37,6 +37,19 @@
                     </ul>
                 </details>
             </article>
+        </section>
+
+                <!-- Posts Section - All Posts Content -->
+        <section id="posts" class="page hidden">
+            <h2>Latest Posts</h2>
+            <div id="posts-container"></div>
+            <div id="loading-spinner" class="spinner hidden">
+                <div class="spinner-circle"></div>
+                <p>Loading posts...</p>
+            </div>
+            <div id="load-more-container" class="text-center">
+                <button id="load-more-btn" class="hidden">Load More Posts</button>
+            </div>
         </section>
 
         <!-- Post Detail Section -->
