@@ -389,7 +389,7 @@ async function openUserProfileModal(UserId) {
 
     // Show modal
     modal.classList.remove('hidden');
-    modalContent.innerHtml = '<p style="text-align: center;">Loading profile...</p>';
+    modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
 
     try {
         // Fetch user details (will use if available on cache)
