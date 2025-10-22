@@ -568,6 +568,7 @@ async function loadUserPosts(userId) {
 // Contact Form
 function setupContactForm(){
     const form = document.getElementById('contact-form');
+    let successTimeoutId = null;
 
     form.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -577,6 +578,11 @@ function setupContactForm(){
         const email = document.getElementById('email').value.trim();
         const message = document.getElementById('message').value.trim();
 
+        // Clear any existing timeout to prevent overlapping
+        if (successTimeoutId) {
+            clearTimeout(successTimeoutId);
+        }
+
         // Success message 
         const successMessage = document.getElementById('success-message');
         successMessage.classList.remove('hidden');
@@ -584,9 +590,12 @@ function setupContactForm(){
         // Reset form
         form.reset();
 
-        // Hide success message after 5 sec
-        setTimeout(() => {successMessage.classList.add('hidden');}, 5000)
-        });
+        // Hide success message after 5 sec and store timeout ID
+        successTimeoutId = setTimeout(() => {
+            successMessage.classList.add('hidden');
+            successTimeoutId = null;
+        }, 5000);
+    });
 }
 
 
