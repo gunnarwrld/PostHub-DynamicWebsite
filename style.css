@@ -148,6 +148,17 @@ button:disabled {
     cursor: not-allowed;
 }
 
+.back-button {
+    background: #35424a;
+    color: white;
+    padding: 12px 24px;
+    font-size: 1em;
+    margin-bottom: 20px;
+    width: auto;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
 #posts-container,
 #comments-container,
 #user-posts-container {
