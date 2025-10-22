@@ -550,7 +550,7 @@ async function loadUserPosts(userId) {
 
     } catch (error) {
         console.error('Error loading user posts.', error);
-        userPostsContainer.innerHTML = '<div class="error-state">Failed to load users post. Please check your internet connection and try again.</div>';
+        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
     }
 }
 
