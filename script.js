@@ -516,7 +516,7 @@ async function loadUserPosts(userId) {
 
         const data = await response.json();
 
-        if (data.posts.lenght === 0){
+        if (data.posts.length === 0){
             userPostsContainer.innerHTML = '<div class="empty-state">No posts available from this user.</div>';
             return;
         }
