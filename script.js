@@ -137,10 +137,8 @@ async function loadPosts() {
         // Update skip counter
         appData.currentSkip += data.posts.length;
         
-        // Display each post with usernames!
-        for (const post of data.posts) {
-            await displayPost(post);
-        }
+        // Display each post with usernames concurrently!
+        await Promise.all(data.posts.map(post => displayPost(post)));
         
         // Hide spinner
         hideSpinner();
@@ -215,7 +213,7 @@ async function displayPost(post) {
             <h3 class="post-title">${post.title}</h3>
             <div class="post-meta">
                 <span class="author">👤 User ${post.userId}</span>
-                <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                <span class="reactions">❤️ ${post.reactions?.likes ?? 'N/A'} likes</span>
             </div>
             <p class="post-body">${post.body}</p>
         `;
@@ -241,7 +239,9 @@ async function loadMorePosts() {
 // Setup the "Load More" button
 function setupLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more-btn');
-    loadMoreBtn.addEventListener('click', loadMorePosts);
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMorePosts);
+    }
 }
 
 // Show/hide Load More button based on available posts
@@ -260,16 +260,20 @@ function updateLoadMoreButton() {
 // Show loading spinner
 function showSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.remove('hidden');
+    if (spinner) {
+        spinner.classList.remove('hidden');
+    }
 }
 
 // Hide loading spinner
 function hideSpinner() {
     const spinner = document.getElementById('loading-spinner');
-    spinner.classList.add('hidden');
+    if (spinner) {
+        spinner.classList.add('hidden');
+    }
 }
 
-// View post detail wit comments
+// View post detail with comments
 async function viewPostDetail(postId) {
     showView('post-detail')
 
@@ -297,8 +301,7 @@ async function viewPostDetail(postId) {
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
 
         //Display post details
-        const tagsHTML = post.tags.map(tag => `<span class='tag´>${tag}</span>`).join('');
-
+        const tagsHTML = post.tags.map(tag => `<span class='tag'>${tag}</span>`).join('');
         postContent.innerHTML = `
             <article class="post-detail-card">
                 <h2>${post.title}</h2>
@@ -312,7 +315,7 @@ async function viewPostDetail(postId) {
             </article>
         `;
 
-        // Add click event to auhot in detail view
+        // Add click event to author in detail view
         const authorInDetail = postContent.querySelector('.author');
         if(authorInDetail){
             authorInDetail.addEventListener('click', () => {
@@ -342,7 +345,7 @@ async function loadComments(postId){
 
         const data = await response.json();
 
-        if (data.comments.lenght === 0){
+        if (data.comments.length === 0){
             commentsContainer.innerHTML = '<div class="empty-state">No comments available for this post.</div>';
             return;
         }
@@ -363,9 +366,34 @@ async function loadComments(postId){
         });
 
     } catch (error){
-        console.error('Error loading comments;', error);
+        console.error('Error loading comments:', error);
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
     }
+}
+
+// Modal setup and close functionality
+function setupModal(){
+    const modal = document.getElementById('profile-modal');
+    const closeBtn = document.querySelector('.close-modal');
+
+    // Close modal when clicking x
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside the modal
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape'){
+            modal.classList.add('hidden');
+        }
+    });
 }
 
 // Open user profile (in modal)
@@ -375,7 +403,7 @@ async function openUserProfileModal(UserId) {
 
     // Show modal
     modal.classList.remove('hidden');
-    modalContent.innerHtml = '<p style="text-align: center;">Loading profile...</p>';
+    modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
 
     try {
         // Fetch user details (will use if available on cache)
@@ -435,31 +463,6 @@ async function openUserProfileModal(UserId) {
     }
 }
 
-// Modal setup and close functionality
-function setupModal(){
-    const modal = document.getElementById('profile-modal');
-    const closeBtn = documento.querySelector('.close-modal');
-
-    // Close modal when clicking x
-    closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-    });
-
-    // Close modal when clicking outside the modal
-    modal.addEventListener('click', (e) => {
-        if(e.target === modal){
-            modal.classList.add('hidden');
-        }
-    });
-
-    // Close modal with Escape key
-    document.addEventListener('keydown', (e) => {
-        if(e.target === modal){
-            modal.classList.add('hidden');
-        }
-    });
-}
-
 // View user profile with their posts
 async function viewUserProfile(userId) {
 
@@ -477,7 +480,7 @@ async function viewUserProfile(userId) {
         const user = await fetchUser(userId);
 
         if(!user){
-            profileContent.innerHTML = '<div class="error-states">User not found.</div>';
+            profileContent.innerHTML = '<div class="error-state">User not found.</div>';
             return;
         }
 
@@ -598,6 +601,36 @@ function setupContactForm(){
     });
 }
 
+        for(const post of data.posts){
+            const postElement = document.createElement('article');
+            postElement.className = 'post-card';
+
+            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+            postElement.innerHTML = `
+                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+                <div class="post-meta">
+                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <p class="post-body">${post.body}</p>
+                <div class="post-tags">${tagsHTML}</div>
+            `;
+
+            // Add click event to view post detail
+            const postTitle = postElement.querySelector('.post-title');
+            postTitle.addEventListener('click', () => {
+                viewPostDetail(post.id);
+            });
+
+            userPostsContainer.appendChild(postElement);
+        }
+
+    } catch (error) {
+        console.error('Error loading user posts.', error);
+        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
+    }
+}
 
 
 
