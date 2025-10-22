@@ -602,37 +602,6 @@ function setupContactForm(){
     });
 }
 
-        for(const post of data.posts){
-            const postElement = document.createElement('article');
-            postElement.className = 'post-card';
-
-            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-
-            postElement.innerHTML = `
-                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
-                <div class="post-meta">
-                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
-                    <span class="views">👁️ ${post.views} views</span>
-                </div>
-                <p class="post-body">${post.body}</p>
-                <div class="post-tags">${tagsHTML}</div>
-            `;
-
-            // Add click event to view post detail
-            const postTitle = postElement.querySelector('.post-title');
-            postTitle.addEventListener('click', () => {
-                viewPostDetail(post.id);
-            });
-
-            userPostsContainer.appendChild(postElement);
-        }
-
-    } catch (error) {
-        console.error('Error loading user posts.', error);
-        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
-    }
-}
-
 
 
 
