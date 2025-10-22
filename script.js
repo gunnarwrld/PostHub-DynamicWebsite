@@ -705,7 +705,7 @@ async function loadUserPosts(userId) {
             const postElement = createArticle('post-card');
             
             // Title
-            const title = createHeading(3,post.title,'post-title');
+            const title = createHeading(3, post.title, 'post-title');
             title.dataset.postId = post.id;
             title.addEventListener('click', () => viewPostDetail(post.id));
             postElement.appendChild(title);
