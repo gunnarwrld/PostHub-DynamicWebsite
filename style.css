@@ -64,6 +64,55 @@ main {
     padding: 0 20px;
 }
 
+/* Home intro section */
+.intro {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.intro h2 {
+    color: #35424a;
+    margin-bottom: 15px;
+}
+
+.intro p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    color: #666;
+}
+
+.instructions {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 5px;
+    border-left: 4px solid #35424a;
+}
+
+.instructions summary {
+    cursor: pointer;
+    font-weight: bold;
+    color: #35424a;
+    padding: 5px 0;
+}
+
+.instructions summary:hover {
+    color: #e8491d;
+}
+
+.instructions ul {
+    margin-top: 15px;
+    margin-left: 20px;
+}
+
+.instructions li {
+    margin-bottom: 10px;
+    line-height: 1.8;
+    padding-left: 12px;
+}
+
 .page{
     display: block;
 }
