@@ -111,6 +111,7 @@ main {
 .instructions li {
     margin-bottom: 10px;
     line-height: 1.8;
+    padding-left: 12px;
 }
 
 .page{
