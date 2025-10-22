@@ -13,10 +13,17 @@ const appData = {
 document.addEventListener('DOMContentLoaded', () => {
     setupNavigation();
     setupLoadMoreButton();
+    setupContactForm();
+    setupModal();
 
     // Check if there's a hash in URL (e.g., #posts)
     const hash = window.location.hash.slice(1) || 'home';
-    showView(hash);    
+    showView(hash);
+
+    //Back button from post details
+    document.getElementById('back-btn').addEventListener('click', () => {
+        showView('posts');
+    });
 });
 
 // Setup navigation links
@@ -313,11 +320,12 @@ async function viewPostDetail(postId) {
         if(authorInDetail){
             authorInDetail.addEventListener('click', () => {
                 openUserProfileModal(post.userId);
-            })
+            });
         }
 
         // Load comments
         await loadComments(postId);
+
     } catch(error){
         console.error('Error loading post detail:', error);
         postContent.innerHTML = '<div class= "error-state">Failed to load post. Please check your connection and try again.</div>';
@@ -326,10 +334,11 @@ async function viewPostDetail(postId) {
 
 async function loadComments(postId){
     const commentsContainer = document.getElementById('comments-container');
-    commentsContainer.innerHTML = '<p>Loading comments...</p>'
+    commentsContainer.innerHTML = '<p>Loading comments...</p>';
 
     try{
         const response = await fetch(`https://dummyjson.com/comments/post/${postId}`);
+
         if(!response.ok){
             throw new Error(`Failed to fetch comments: ${response.status}`);
         }
@@ -354,7 +363,8 @@ async function loadComments(postId){
                 <p class="comment-body">${comment.body}</p>
             `;
             commentsContainer.appendChild(commentElement);
-        })
+        });
+
     } catch (error){
         console.error('Error loading comments:', error);
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
@@ -462,7 +472,7 @@ async function viewUserProfile(userId) {
     const userPostsContainer = document.getElementById('user-posts-container');
 
     //Show loading state
-    profileContent.innerHTML = '<p>Loading profile...</p>'
+    profileContent.innerHTML = '<p>Loading profile...</p>';
     userPostsContainer.innerHTML ='';
 
     try {
@@ -510,22 +520,86 @@ async function viewUserProfile(userId) {
 async function loadUserPosts(userId) {
     const userPostsContainer = document.getElementById('user-posts-container');
     userPostsContainer.innerHTML = '<p>Loading user posts...</p>';
-
+    
     try {
         const response = await fetch(`https://dummyjson.com/posts/user/${userId}`);
         
-        if (!response.ok){
+        if (!response.ok) {
             throw new Error(`Failed to fetch user posts: ${response.status}`);
         }
-
+        
         const data = await response.json();
-
-        if (data.posts.length === 0){
+        
+        if (data.posts.length === 0) {
             userPostsContainer.innerHTML = '<div class="empty-state">No posts available from this user.</div>';
             return;
         }
+        
+        userPostsContainer.innerHTML = '';
+        
+        for (const post of data.posts) {
+            const postElement = document.createElement('article');
+            postElement.className = 'post-card';
+            
+            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+            
+            postElement.innerHTML = `
+                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+                <div class="post-meta">
+                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <p class="post-body">${post.body}</p>
+                <div class="post-tags">${tagsHTML}</div>
+            `;
+            
+            // Add click event to view post detail
+            const postTitle = postElement.querySelector('.post-title');
+            postTitle.addEventListener('click', () => {
+                viewPostDetail(post.id);
+            });
+            
+            userPostsContainer.appendChild(postElement);
+        }
+        
+    } catch (error) {
+        console.error('Error loading user posts:', error);
+        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your connection and try again.</div>';
+    }
+}
 
-        userPostsContainer.innerHTML ='';
+// Contact Form
+function setupContactForm(){
+    const form = document.getElementById('contact-form');
+    let successTimeoutId = null;
+
+    form.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Get form data
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const message = document.getElementById('message').value.trim();
+
+        // Clear any existing timeout to prevent overlapping
+        if (successTimeoutId) {
+            clearTimeout(successTimeoutId);
+        }
+
+        // Success message 
+        const successMessage = document.getElementById('success-message');
+        successMessage.classList.remove('hidden');
+
+        // Reset form
+        form.reset();
+
+        // Hide success message after 5 sec and store timeout ID
+        successTimeoutId = setTimeout(() => {
+            successMessage.classList.add('hidden');
+            successTimeoutId = null;
+        }, 5000);
+    });
+}
 
         for(const post of data.posts){
             const postElement = document.createElement('article');
