@@ -301,7 +301,8 @@ async function viewPostDetail(postId) {
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
 
         //Display post details
-        const tagsHTML = post.tags.map(tag => `<span class='tag'>${tag}</span>`).join('');
+        const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
         postContent.innerHTML = `
             <article class="post-detail-card">
                 <h2>${post.title}</h2>
@@ -390,14 +391,14 @@ function setupModal(){
 
     // Close modal with Escape key
     document.addEventListener('keydown', (e) => {
-        if(e.key === 'Escape'){
+        if(e.key === 'Escape' && !modal.classList.contains('hidden')){
             modal.classList.add('hidden');
         }
     });
 }
 
 // Open user profile (in modal)
-async function openUserProfileModal(UserId) {
+async function openUserProfileModal(userId) {
     const modal = document.getElementById('profile-modal');
     const modalContent = document.getElementById('modal-profile-content');
 
@@ -406,7 +407,7 @@ async function openUserProfileModal(UserId) {
     modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
 
     try {
-        // Fetch user details (will use if available on cache)
+        // Fetch user details (will use cache if available)
         const user = await fetchUser(userId);
 
         if(!user){
@@ -631,8 +632,6 @@ function setupContactForm(){
         userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
     }
 }
-
-
 
 
 
