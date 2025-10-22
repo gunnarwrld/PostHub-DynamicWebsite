@@ -360,7 +360,7 @@ async function loadComments(postId){
 // Modal setup and close functionality
 function setupModal(){
     const modal = document.getElementById('profile-modal');
-    const closeBtn = documento.querySelector('.close-modal');
+    const closeBtn = document.querySelector('.close-modal');
 
     // Close modal when clicking x
     closeBtn.addEventListener('click', () => {
