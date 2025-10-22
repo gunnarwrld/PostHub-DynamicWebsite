@@ -119,7 +119,7 @@ async function loadPosts() {
         
         // Check if no posts were returned
         if (data.posts.length === 0 && appData.posts.length === 0) {
-            postsContainer.innerHTML = '<div class="empty-state">📭 No posts available at the moment.</div>';
+            postsContainer.innerHTML = '<div class="empty-state">No posts available at the moment.</div>';
             hideSpinner();
             return;
         }
@@ -142,7 +142,7 @@ async function loadPosts() {
     } catch (error) {
         console.error('Error loading posts:', error);
         hideSpinner();
-        postsContainer.innerHTML = '<div class="error-state">❌ Failed to load posts. Please check your internet connection and try again.</div>';
+        postsContainer.innerHTML = '<div class="error-state">Failed to load posts. Please check your internet connection and try again.</div>';
     } finally {
         // Always reset loading state
         appData.isLoading = false;
@@ -187,12 +187,12 @@ async function displayPost(post) {
         
         // Click on title → view post detail
         postTitle.addEventListener('click', () => {
-            viewPostDetail(post.id); // Future function
+            viewPostDetail(post.id);
         });
         
         // Click on author → open modal with profile
         authorSpan.addEventListener('click', () => {
-            openUserProfileModal(post.userId); // Future function
+            openUserProfileModal(post.userId);
         });
         
         // STEP 6: Add the post to the page
@@ -360,4 +360,207 @@ async function loadComments(postId){
         commentsContainer.innerHTML = '<div class="error-state">Failed to load comments. Please check your connection and try again.</div>';
     }
 }
+
+// Modal setup and close functionality
+function setupModal(){
+    const modal = document.getElementById('profile-modal');
+    const closeBtn = document.querySelector('.close-modal');
+
+    // Close modal when clicking x
+    closeBtn.addEventListener('click', () => {
+        modal.classList.add('hidden');
+    });
+
+    // Close modal when clicking outside the modal
+    modal.addEventListener('click', (e) => {
+        if(e.target === modal){
+            modal.classList.add('hidden');
+        }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', (e) => {
+        if(e.key === 'Escape'){
+            modal.classList.add('hidden');
+        }
+    });
+}
+
+// Open user profile (in modal)
+async function openUserProfileModal(UserId) {
+    const modal = document.getElementById('profile-modal');
+    const modalContent = document.getElementById('modal-profile-content');
+
+    // Show modal
+    modal.classList.remove('hidden');
+    modalContent.innerHTML = '<p style="text-align: center;">Loading profile...</p>';
+
+    try {
+        // Fetch user details (will use if available on cache)
+        const user = await fetchUser(userId);
+
+        if(!user){
+            modalContent.innerHTML = '<div class="error-state">User not found</div>';
+            return;
+        }
+
+        // Display user profile in modal with full details
+        modalContent.innerHTML = `
+            <div class="modal-profile-header">
+                <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="modal-profile-image">
+                <h2 class="modal-profile-name">${user.firstName} ${user.lastName}</h2>
+                <p class="modal-profile-username">@${user.username}</p>
+            </div>
+            <div class="modal-profile-details">
+                <div class="profile-detail-item">
+                    <strong>📧 Email:</strong>
+                    <span>${user.email}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📍 Address:</strong>
+                    <span>${user.address.address}, ${user.address.city}, ${user.address.state} ${user.address.postalCode}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📞 Phone:</strong>
+                    <span>${user.phone}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>🎂 Age:</strong>
+                    <span>${user.age} years old</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>👁️ Eye Color:</strong>
+                    <span>${user.eyeColor}</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>📏 Height:</strong>
+                    <span>${user.height} cm</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>⚖️ Weight:</strong>
+                    <span>${user.weight} kg</span>
+                </div>
+                <div class="profile-detail-item">
+                    <strong>🩸 Blood Type:</strong>
+                    <span>${user.bloodGroup}</span>
+                </div>
+            </div>
+        `;
+
+    } catch(error){
+        console.error('Error loading user profile:', error);
+        modalContent.innerHTML= '<div class="error-state">Failed to load profile. Please check your internet connection and try again.</div>';
+    }
+}
+
+// View user profile with their posts
+async function viewUserProfile(userId) {
+
+    showView('profile');
+
+    const profileContent = document.getElementById('profile-content');
+    const userPostsContainer = document.getElementById('user-posts-container');
+
+    //Show loading state
+    profileContent.innerHTML = '<p>Loading profile...</p>'
+    userPostsContainer.innerHTML ='';
+
+    try {
+        // Fetch user details
+        const user = await fetchUser(userId);
+
+        if(!user){
+            profileContent.innerHTML = '<div class="error-state">User not found.</div>';
+            return;
+        }
+
+        // Store current user 
+        appData.currentUser = user;
+
+        // Display user profile
+        profileContent.innerHTML = `
+            <div class="profile-card">
+                <div class="profile-header">
+                    <img src="${user.image}" alt="${user.firstName} ${user.lastName}" class="profile-image">
+                    <div class="profile-info">
+                        <h2>${user.firstName} ${user.lastName}</h2>
+                        <p class="profile-username">@${user.username}</p>
+                        <p class="profile-email">📧 ${user.email}</p>
+                        <p class="profile-details">
+                            📍 ${user.address.city}, ${user.address.state}<br>
+                            🎂 Age: ${user.age} | 
+                            👁️ ${user.eyeColor} eyes | 
+                            ${user.height}cm
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Load user´s posts
+        await loadUserPosts(userId);
+
+    } catch (error) {
+        console.error('Error loading profile', error);
+        profileContent.innerHTML = '<div class="error-state">Failed to load profile. Please check your connection and try again.</div>';        
+    }
+}
+
+// Load all posts by a specific user
+async function loadUserPosts(userId) {
+    const userPostsContainer = document.getElementById('user-posts-container');
+    userPostsContainer.innerHTML = '<p>Loading user posts...</p>';
+
+    try {
+        const response = await fetch(`https://dummyjson.com/posts/user/${userId}`);
+        
+        if (!response.ok){
+            throw new Error(`Failed to fetch user posts: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.posts.length === 0){
+            userPostsContainer.innerHTML = '<div class="empty-state">No posts available from this user.</div>';
+            return;
+        }
+
+        userPostsContainer.innerHTML ='';
+
+        for(const post of data.posts){
+            const postElement = document.createElement('article');
+            postElement.className = 'post-card';
+
+            const tagsHTML = post.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
+
+            postElement.innerHTML = `
+                <h3 class="post-title" data-post-id="${post.id}">${post.title}</h3>
+                <div class="post-meta">
+                    <span class="reactions">❤️ ${post.reactions.likes} likes</span>
+                    <span class="views">👁️ ${post.views} views</span>
+                </div>
+                <p class="post-body">${post.body}</p>
+                <div class="post-tags">${tagsHTML}</div>
+            `;
+
+            // Add click event to view post detail
+            const postTitle = postElement.querySelector('.post-title');
+            postTitle.addEventListener('click', () => {
+                viewPostDetail(post.id);
+            });
+
+            userPostsContainer.appendChild(postElement);
+        }
+
+    } catch (error) {
+        console.error('Error loading user posts.', error);
+        userPostsContainer.innerHTML = '<div class="error-state">Failed to load user posts. Please check your internet connection and try again.</div>';
+    }
+}
+
+
+
+
+
+
 
