@@ -772,6 +772,8 @@ function setupContactForm(){
             successMessage.classList.add('hidden');
             successTimeoutId = null;
         }, 5000);
+
+        console.log(name, email, message);
     });
 }
 
