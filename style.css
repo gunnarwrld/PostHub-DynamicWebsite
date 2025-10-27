@@ -175,6 +175,17 @@ button:disabled {
     font-size: 1.1em;
 }
 
+#scroll-btn{
+    position: absolute;
+    font-size: 1.1em;
+    right: 5px;
+    bottom: 30px;
+    transition: opacity 0.2s;
+}
+#scrollToTop{
+    position: relative;
+}
+
 /* Loading Spinner */
 .spinner {
     text-align: center;

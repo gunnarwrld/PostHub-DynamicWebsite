@@ -5,7 +5,7 @@ import { appData } from './config.js';
 import { fetchPosts, fetchUser, fetchPostById } from './api.js';
 import { 
     createArticle, createDiv, createHeading, createParagraph, 
-    createSpan, clearContainer 
+    createSpan, clearContainer, createButton
 } from './helpers.js';
 import { openUserProfileModal } from './users.js';
 import { loadComments } from './comments.js';
@@ -247,6 +247,22 @@ export function setupLoadMoreButton() {
     if (loadMoreBtn) {
         loadMoreBtn.addEventListener('click', loadMorePosts);
     }
+}
+
+/**
+ * Setup the "Back to top" button event listener
+ */
+export function setupBackToTopButton() {
+    const container = document.getElementById('scrollToTop');
+    const scrollToTopBtn = createButton('↑', 'hidden', 'scroll-btn', () =>{window.scrollTo({top: 0, behavior: 'smooth'})});
+    container.appendChild(scrollToTopBtn);
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 200) {
+            scrollToTopBtn.classList.remove('hidden');
+        } else {
+            scrollToTopBtn.classList.add('hidden');
+        }   
+    })
 }
 
 /**

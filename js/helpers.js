@@ -64,10 +64,11 @@ export function createHeading(level, textContent, className = '') {
 /**
  * Creates a button element with text, optional class, and optional click handler
  */
-export function createButton(textContent, className = '', onClick = null) {
+export function createButton(textContent, className = '', id ='', onClick = null) {
     const button = document.createElement('button');
     button.textContent = textContent;
     if (className) button.className = className;
+    if (id) button.id = id;
     if (onClick && typeof onClick === 'function') {
         button.addEventListener('click', onClick);
     }
@@ -175,3 +176,25 @@ export function clearContainer(container) {
         container.removeChild(container.firstChild);
     }
 }
+
+// USAGE EXAMPLES OF HELPERS JS
+
+// // Button with click handler
+// const submitBtn = createButton('Submit', 'btn-primary', () => {
+//     console.log('Clicked!');
+// });
+
+// // Input with attributes
+// const emailInput = createInput('email', 'user-email', {
+//     placeholder: 'Enter email',
+//     required: true,
+//     className: 'form-input'
+// });
+
+// // List with items
+// const list = createUnorderedList('menu-list');
+// list.appendChild(createListItem('Home', 'menu-item'));
+// list.appendChild(createListItem('About', 'menu-item'));
+
+// // Link
+// const link = createLink('#posts', 'View Posts', 'nav-link');
