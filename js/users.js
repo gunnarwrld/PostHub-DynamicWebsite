@@ -101,6 +101,7 @@ export async function openUserProfileModal(userId) {
         addDetailItem('📏 Height:', `${user.height} cm`);
         addDetailItem('⚖️ Weight:', `${user.weight} kg`);
         addDetailItem('🩸 Blood Type:', user.bloodGroup);
+        addDetailItem('🦱 Hair:',`${user.hair.color} (${user.hair.type})`);
 
         modalContent.appendChild(profileDetails);
 
