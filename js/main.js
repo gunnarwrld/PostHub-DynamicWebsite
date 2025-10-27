@@ -4,7 +4,7 @@
  */
 import { setupNavigation } from './navigation.js';
 import { setupModal } from './users.js';
-import { setupContactForm } from './contact.js';
+import { setupContactForm, characterCounter } from './contact.js';
 import { setupLoadMoreButton, setupBackToTopButton } from './posts.js';
 
 /**
@@ -25,5 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Setup back to top button
     setupBackToTopButton();
+
+    // Live Character function for Contact Form
+    characterCounter();
 
 });

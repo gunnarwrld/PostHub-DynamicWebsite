@@ -1,3 +1,4 @@
+import { createSpan } from "./helpers.js";
 /**
  * Contact Form Management
  */
@@ -36,3 +37,12 @@ export function setupContactForm() {
         }, 5000);
     });
 }
+
+export function characterCounter() {
+    const charCounter = document.getElementById('messageCounter');
+    const message = document.getElementById('message');
+
+    message.addEventListener('input', ()=>{
+        const charCount = message.value.length;
+        charCounter.textContent = `You have typed: ${charCount} character${charCount !== 1 ? 's': ''}.`;
+    })}
