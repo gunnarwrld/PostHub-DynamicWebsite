@@ -6,6 +6,7 @@ import { setupNavigation } from './navigation.js';
 import { setupModal } from './users.js';
 import { setupContactForm, characterCounter } from './contact.js';
 import { setupLoadMoreButton, setupBackToTopButton } from './posts.js';
+import { randomWelcomeMessages } from './home.js';
 
 /**
  * Initialize the application when DOM is ready
@@ -30,10 +31,6 @@ document.addEventListener('DOMContentLoaded', () => {
     characterCounter();
 
     // Random welcome message
-        randomWelcomeMessages();
+    randomWelcomeMessages();
 
-    function randomWelcomeMessages() {
-    const welcomeMessages = ["Welcome User!", "Hello Person!", "Greetings Viewer!", "Hi There!"];
-    document.getElementById("welcomeMessage").textContent = welcomeMessages[Math.floor(Math.random() * welcomeMessages.length)];
-    }
 });
