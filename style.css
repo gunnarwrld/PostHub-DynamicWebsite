@@ -312,6 +312,17 @@ button:disabled {
     color: #333;
 }
 
+.bookmarkBtn{
+    cursor: pointer;
+    padding: 4px 12px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 55px;
+}
+.bookmark-color{
+    background-color: lightblue;
+}
+
 /* Comment Styles */
 .comment-card {
     background: white;

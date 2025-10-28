@@ -5,7 +5,7 @@ import { appData } from './config.js';
 import { fetchPosts, fetchUser, fetchPostById } from './api.js';
 import { 
     createArticle, createDiv, createHeading, createParagraph, 
-    createSpan, clearContainer, createButton
+    createSpan, clearContainer, createButton, changeBtnColor
 } from './helpers.js';
 import { openUserProfileModal } from './users.js';
 import { loadComments } from './comments.js';
@@ -101,6 +101,10 @@ export async function displayPost(post) {
         // Views span
         const views = createSpan('views', `👁️ ${post.views} views`);
         postMeta.appendChild(views);
+
+        // Bookmark button
+        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`, () => {bookmark.addEventListener('click', changeBtnColor);});
+        postMeta.appendChild(bookmark);
         
         // Create body
         const body = createParagraph(post.body);
@@ -193,6 +197,9 @@ export async function viewPostDetail(postId) {
         
         const views = createSpan('views', `👁️ ${post.views} views`);
         postMeta.appendChild(views);
+
+        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`, () => {bookmark.addEventListener('click', changeBtnColor);});
+        postMeta.appendChild(bookmark);
         
         article.appendChild(postMeta);
 

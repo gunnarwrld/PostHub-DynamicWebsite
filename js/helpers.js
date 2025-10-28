@@ -177,6 +177,10 @@ export function clearContainer(container) {
     }
 }
 
+export function changeBtnColor(event){
+    event.currentTarget.classList.toggle('bookmark-color')
+}
+
 // USAGE EXAMPLES OF HELPERS JS
 
 // // Button with click handler
