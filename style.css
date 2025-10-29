@@ -319,7 +319,7 @@ button:disabled {
     align-items: center;
     border-radius: 55px;
 }
-.btn-color{
+.btn-clicked{
     background-color: lightblue;
 }
 

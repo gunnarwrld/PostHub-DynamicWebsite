@@ -187,6 +187,6 @@ export function clearContainer(container) {
 // Toggles bookmark button color
 // currentTarget = element with listener (always the button)
 // target = element clicked (could be child element)
-export function changeBtnColor(event){
-    event.currentTarget.classList.toggle('btn-color')
+export function changeBtnColor(e){
+    e.currentTarget.classList.toggle('btn-clicked');
 }

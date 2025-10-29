@@ -102,10 +102,20 @@ export async function displayPost(post) {
         const views = createSpan('views', `👁️ ${post.views} views`);
         postMeta.appendChild(views);
 
-        // Bookmark button with color toggle
         const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`);
         bookmark.addEventListener('click', changeBtnColor)
         postMeta.appendChild(bookmark);
+
+        // // Bookmark button with color toggle
+        // const likeBtn = createButton('🔖', 'bookmarkBtn');
+        // likeBtn.dataset.postId = post.id;
+
+        // // 2. Add click handler
+        // likeBtn.addEventListener('click', (e) => {
+        //     e.currentTarget.classList.toggle('btn-clicked');
+        //     // Optional: Update count, save to localStorage
+        // });
+        // postMeta.appendChild(likeBtn);
         
         // Post body preview
         const body = createParagraph(post.body);
@@ -230,6 +240,7 @@ export async function viewPostDetail(postId) {
     }
 }
 
+
 // ========== Pagination ==========
 
 // Load next batch when user clicks "Load More"
@@ -282,6 +293,40 @@ function updateLoadMoreButton() {
         loadMoreBtn.classList.remove('hidden');
     }
 }
+
+// ### Future Implementations
+
+    // Filter posts by tag
+// 1. Create filter function
+// export function filterPostsByTag(tag) {
+//     const container = document.getElementById('posts-container');
+//     clearContainer(container);
+    
+//     // 2. Filter posts
+//     const filtered = appData.posts.filter(post => 
+//         post.tags.includes(tag)
+//     );
+    
+//     // 3. Display filtered posts
+//     filtered.forEach(post => displayPost(post));
+// }
+
+// // 4. Create tag buttons (call on load)
+// export function setupTagFilter() {
+//     const tags = [...new Set(appData.posts.flatMap(p => p.tags))];
+//     const filterDiv = createDiv('tag-filter');
+    
+//     tags.forEach(tag => {
+//         const tagBtn = createButton(tag, 'tag-btn');
+//         tagBtn.addEventListener('click', () => filterPostsByTag(tag));
+//         filterDiv.appendChild(tagBtn);
+//     });
+    
+//     document.getElementById('posts-container').before(filterDiv);
+// }
+// ```
+
+// **Call from**: `loadPosts()` after posts loaded
 
 // ========== UI Helpers ==========
 
