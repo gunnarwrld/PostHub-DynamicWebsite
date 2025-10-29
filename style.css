@@ -176,14 +176,14 @@ button:disabled {
 }
 
 #scroll-btn{
-    position: absolute;
+    position: fixed;
     font-size: 1.1em;
-    right: 5px;
+    right: 20px;
     bottom: 30px;
     transition: opacity 0.2s;
 }
 #scrollToTop{
-    position: relative;
+    position: fixed;
 }
 
 /* Loading Spinner */
@@ -321,6 +321,30 @@ button:disabled {
 }
 .btn-color{
     background-color: lightblue;
+}
+
+/* Top Left */
+.corner-btn.top-left {
+  top: 10px;
+  left: 10px;
+}
+
+/* Top Right */
+.corner-btn.top-right {
+  top: 10px;
+  right: 10px;
+}
+
+/* Bottom Left */
+.corner-btn.bottom-left {
+  bottom: 10px;
+  left: 10px;
+}
+
+/* Bottom Right */
+.corner-btn.bottom-right {
+  bottom: 10px;
+  right: 10px;
 }
 
 /* Comment Styles */
@@ -985,3 +1009,5 @@ button:disabled {
         font-size: 0.95em;
     }
 }
+/* Parent: relative
+child: absolute */
