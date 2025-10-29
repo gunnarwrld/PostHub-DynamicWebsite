@@ -10,7 +10,7 @@ import { API_BASE_URL, appData } from './config.js';
 // ========== User Data ==========
 
 // Fetch user with caching - avoids duplicate requests
-export async function fetchUser(userId) {
+export async function fetchUser(userId) { // Returns User Object
     // Return cached user if already fetched (performance optimization)
     if (appData.users[userId]) {
         return appData.users[userId];
@@ -39,7 +39,7 @@ export async function fetchUser(userId) {
 // ========== Posts Data ==========
 
 // Fetch posts with pagination (limit = how many, skip = offset)
-export async function fetchPosts(limit, skip) {
+export async function fetchPosts(limit, skip) { // Object with posts array
     const response = await fetch(`${API_BASE_URL}/posts?limit=${limit}&skip=${skip}`);
     
     if (!response.ok) {
@@ -50,7 +50,7 @@ export async function fetchPosts(limit, skip) {
 }
 
 // Fetch single post for detail view
-export async function fetchPostById(postId) {
+export async function fetchPostById(postId) { // Returns Single post Object
     const response = await fetch(`${API_BASE_URL}/posts/${postId}`);
     
     if (!response.ok) {
@@ -61,7 +61,7 @@ export async function fetchPostById(postId) {
 }
 
 // Fetch all posts by specific user (for profile view)
-export async function fetchPostsByUserId(userId) {
+export async function fetchPostsByUserId(userId) { // Retunrs object with posts array
     const response = await fetch(`${API_BASE_URL}/posts/user/${userId}`);
     
     if (!response.ok) {
@@ -74,7 +74,7 @@ export async function fetchPostsByUserId(userId) {
 // ========== Comments Data ==========
 
 // Fetch comments for a post (used in post detail view)
-export async function fetchCommentsByPostId(postId) {
+export async function fetchCommentsByPostId(postId) { // Object with comments array
     const response = await fetch(`${API_BASE_URL}/comments/post/${postId}`);
     
     if (!response.ok) {
