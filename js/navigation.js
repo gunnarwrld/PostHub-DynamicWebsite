@@ -1,7 +1,7 @@
 /**
- * NAVIGATION.JS - Hash-based SPA Routing
+ * Hash-based SPA Routing
  * 
- * WHY? Enable single-page navigation without page reloads
+ * Enable single-page navigation without page reloads
  * Hash routing (#home, #posts) doesn't trigger server requests
  */
 

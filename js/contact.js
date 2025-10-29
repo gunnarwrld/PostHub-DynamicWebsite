@@ -1,7 +1,7 @@
 /**
  * CONTACT.JS - Contact Form & Character Counter
  * 
- * WHY? Handle form submission and provide live character count
+ * Handle form submission and provide live character count
  * Shows success message when user submits contact form
  */
 

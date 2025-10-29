@@ -1,7 +1,7 @@
 /**
- * API.JS - DummyJSON API Communication Layer
+ *DummyJSON API Communication Layer
  * 
- * WHY? Centralize all API calls, implement caching, handle errors
+ * Centralize all API calls, implement caching, handle errors
  * All fetch operations go through here
  */
 

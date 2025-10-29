@@ -1,7 +1,7 @@
 /**
- * USERS.JS - User Profile Display (Modal & Full Page)
+ * User Profile Display (Modal & Full Page)
  * 
- * WHY? Show user details in two contexts:
+ * Show user details in two contexts:
  * - Modal: Quick view when clicking author name
  * - Full page: Complete profile with user's posts
  */
@@ -108,6 +108,16 @@ export async function openUserProfileModal(userId) {
         addDetailItem('🦱 Hair:',`${user.hair.color} (${user.hair.type})`);
 
         modalContent.appendChild(profileDetails);
+
+        // Add "View Full Profile" button to see user's posts
+        const viewFullProfileBtn = document.createElement('button');
+        viewFullProfileBtn.textContent = 'View Full Profile & Posts';
+        viewFullProfileBtn.className = 'view-profile-btn';
+        viewFullProfileBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');  // Close modal
+            viewUserProfile(userId);  // Navigate to full profile page
+        });
+        modalContent.appendChild(viewFullProfileBtn);
 
     } catch (error) {
         console.error('Error loading user profile:', error);

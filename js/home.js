@@ -1,7 +1,7 @@
 /**
- * HOME.JS - Welcome Message Feature
+ * Welcome Message Feature
  * 
- * WHY? Add dynamic welcome message to home page
+ * Add dynamic welcome message to home page
  * Randomly selects greeting from array for variety
  */
 

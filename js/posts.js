@@ -1,7 +1,7 @@
 /**
- * POSTS.JS - Posts Display & Pagination Logic
+ * Posts Display & Pagination Logic
  * 
- * WHY? Handle posts list, detail view, pagination, loading states
+ * Handle posts list, detail view, pagination, loading states
  * Core feature of the app - displays blog posts from API
  */
 

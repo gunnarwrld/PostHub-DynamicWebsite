@@ -319,7 +319,7 @@ button:disabled {
     align-items: center;
     border-radius: 55px;
 }
-.bookmark-color{
+.btn-color{
     background-color: lightblue;
 }
 
@@ -470,6 +470,25 @@ button:disabled {
 
 .profile-detail-item span {
     color: #555;
+}
+
+/* View Full Profile Button */
+.view-profile-btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    background: #35424a;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    width: 100%;
+    transition: background 0.3s ease;
+}
+
+.view-profile-btn:hover {
+    background: #4a5a6a;
 }
 
 /* Profile Section Styles */
