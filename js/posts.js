@@ -298,3 +298,27 @@ function hideSpinner() {
         spinner.classList.add('hidden');
     }
 }
+
+// // ### Array & Object Operations
+
+// // // Add items to array
+// // appData.posts.push(...newPosts);  // Spread adds all items
+
+// // // Transform array
+// // posts.map(post => displayPost(post));  // Apply function to each
+
+// // // Filter array
+// // posts.filter(post => post.tags.includes('javascript'));
+
+// // // Find one item
+// // posts.find(post => post.id === 5);
+
+// // // Iterate
+// // posts.forEach(post => console.log(post.title));
+
+// // // Check if any match
+// // posts.some(post => post.userId === 5);
+
+// // // Check if all match
+// // posts.every(post => post.reactions.likes > 0);
+// // ```

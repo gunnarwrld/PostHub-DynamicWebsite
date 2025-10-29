@@ -6,6 +6,22 @@
  * - Consistent element creation
  * - Safer (handles optional params)
  * - Easier to maintain/modify
+
+Append child
+container.appendChild(element);
+
+Insert before
+container.insertBefore(newEl, referenceEl);
+
+Insert adjacent
+element.insertAdjacentElement('beforeend', newEl);
+
+**Class Manipulation:**
+
+element.classList.add('active');
+element.classList.remove('hidden');
+element.classList.toggle('expanded');
+element.classList.contains('active');  // true/false
  */
 
 // ========== Semantic Elements ==========
@@ -123,7 +139,7 @@ export function createTextarea(id, attributes = {}) {
     const textarea = document.createElement('textarea');
     if (id) textarea.id = id;
     
-    Object.keys(attributes).forEach(key => {
+    Object.keys(attributes).forEach(key => { 
         if (key === 'className') {
             textarea.className = attributes[key];
         } else if (key === 'value') {
