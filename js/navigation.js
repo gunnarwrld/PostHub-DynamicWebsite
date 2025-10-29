@@ -1,80 +1,85 @@
 /**
- * Navigation and View Management
+ * NAVIGATION.JS - Hash-based SPA Routing
+ * 
+ * WHY? Enable single-page navigation without page reloads
+ * Hash routing (#home, #posts) doesn't trigger server requests
  */
+
 import { loadPosts } from './posts.js';
 import { appData } from './config.js';
 
-/**
- * Setup navigation link event listeners
- */
+// ========== Navigation Setup ==========
+
+// Initialize all navigation event listeners
 export function setupNavigation() {
     const navLinks = document.querySelectorAll('.nav-link');
     
+    // Attach click handlers to nav links
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const viewName = link.getAttribute('data-view');
+            e.preventDefault();  // Stop default link behavior
+            const viewName = link.getAttribute('data-view');  // Get view from data attribute
             showView(viewName);
             
-            // Update URL hash
+            // Update URL hash (enables browser back/forward buttons)
             window.location.hash = viewName;
         });
     });
 
-    // Setup back button from post detail
+    // Back button from post detail → posts view
     document.getElementById('back-btn').addEventListener('click', () => {
         showView('posts');
         window.location.hash = 'posts';
     });
 
-    // Setup back button from profile
+    // Back button from profile → posts view
     document.getElementById('profile-back-btn').addEventListener('click', () => {
         showView('posts');
         window.location.hash = 'posts';
     });
 
-    // Handle initial page load and hash changes
+    // Route handler (responds to URL hash changes)
     const handleRoute = () => {
-        const hash = window.location.hash.slice(1) || 'home';
+        const hash = window.location.hash.slice(1) || 'home';  // Remove '#', default to 'home'
         showView(hash);
     };
 
-    // Listen for hash changes
+    // Listen for back/forward browser buttons
     window.addEventListener('hashchange', handleRoute);
 
-    // Handle initial route on page load
+    // Handle initial page load (when user lands on site)
     handleRoute();
 }
 
-/**
- * Switch between different views (Home, Posts, Post Detail, Profile, Contact)
- */
+// ========== View Management ==========
+
+// Show/hide views based on route
 export function showView(viewName) {
-    // Hide all views
+    // Hide all pages
     document.querySelectorAll('.page').forEach(page => {
         page.classList.add('hidden');
     });
     
-    // Show the requested view
+    // Show requested page
     const view = document.getElementById(viewName);
     if (view) {
         view.classList.remove('hidden');
     }
     
-    // Update active navigation state
+    // Update nav link styling
     updateActiveNav(viewName);
     
-    // Load posts if viewing posts page for the first time
+    // Lazy load posts on first visit to posts page
+    // Guard clause prevents duplicate requests
     if (viewName === 'posts' && appData.posts.length === 0 && !appData.isLoading) {
         loadPosts();
     }
 }
 
-/**
- * Update active navigation link styling
- */
+// Update active nav link (visual feedback)
 function updateActiveNav(viewName) {
     document.querySelectorAll('.nav-link').forEach(link => {
+        // Add 'active' class if link's view matches current view
         link.classList.toggle('active', link.getAttribute('data-view') === viewName);
     });
 }

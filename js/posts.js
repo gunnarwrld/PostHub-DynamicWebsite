@@ -1,6 +1,10 @@
 /**
- * Posts Management Functions
+ * POSTS.JS - Posts Display & Pagination Logic
+ * 
+ * WHY? Handle posts list, detail view, pagination, loading states
+ * Core feature of the app - displays blog posts from API
  */
+
 import { appData } from './config.js';
 import { fetchPosts, fetchUser, fetchPostById } from './api.js';
 import { 
@@ -11,27 +15,27 @@ import { openUserProfileModal } from './users.js';
 import { loadComments } from './comments.js';
 import { showView } from './navigation.js';
 
-/**
- * Load posts from API with pagination
- */
+// ========== Posts List ==========
+
+// Load batch of posts from API
 export async function loadPosts() {
-    // Prevent loading if already loading
+    // Guard clause: prevent duplicate requests
     if (appData.isLoading) return;
     
     const postsContainer = document.getElementById('posts-container');
     
     try {
-        // Set loading state
+        // Set loading flag (prevents multiple simultaneous requests)
         appData.isLoading = true;
         showSpinner();
         
-        // Fetch batch of posts from DummyJSON API
+        // Fetch posts (limit = how many, skip = offset for pagination)
         const data = await fetchPosts(appData.postsPerPage, appData.currentSkip);
         
-        // Store total number of posts available
+        // Store total (used to hide "Load More" when all loaded)
         appData.totalPosts = data.total;
         
-        // Check if no posts were returned
+        // Empty state check
         if (data.posts.length === 0 && appData.posts.length === 0) {
             const emptyState = createDiv('empty-state', 'No posts available at the moment.');
             postsContainer.appendChild(emptyState);
@@ -39,19 +43,18 @@ export async function loadPosts() {
             return;
         }
         
-        // Add new posts to our state
+        // Add new posts to state (spread operator maintains existing posts)
         appData.posts.push(...data.posts);
         
-        // Update skip counter
+        // Update skip counter for next batch
         appData.currentSkip += data.posts.length;
         
-        // Display each post concurrently
+        // Display all fetched posts (Promise.all = parallel execution)
         await Promise.all(data.posts.map(post => displayPost(post)));
         
-        // Hide spinner
         hideSpinner();
         
-        // Show or hide "Load More" button
+        // Show/hide "Load More" button based on remaining posts
         updateLoadMoreButton();
         
     } catch (error) {
@@ -60,74 +63,71 @@ export async function loadPosts() {
         const errorState = createDiv('error-state', 'Failed to load posts. Please check your internet connection and try again.');
         postsContainer.appendChild(errorState);
     } finally {
-        // Always reset loading state
+        // Always reset loading state (even if error occurs)
         appData.isLoading = false;
     }
 }
 
-/**
- * Display a single post card
- */
+// Display single post card
 export async function displayPost(post) {
     const postsContainer = document.getElementById('posts-container');
     
     try {
+        // Fetch author info (cached by api.js)
         const user = await fetchUser(post.userId);
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
         
-        // Create post card
+        // Create post card structure
         const postElement = createArticle('post-card');
         
-        // Create title
+        // Clickable title → post detail view
         const title = createHeading(3, post.title, 'post-title');
-        title.dataset.postId = post.id;
+        title.dataset.postId = post.id;  // Store ID for event handler
         title.style.cursor = 'pointer';
         title.addEventListener('click', () => viewPostDetail(post.id));
         
-        // Create post meta
+        // Post metadata (author, likes, views, bookmark)
         const postMeta = createDiv('post-meta');
         
-        // Author span
+        // Clickable author → profile modal
         const author = createSpan('author', `👤 ${authorName}`);
         author.dataset.userId = post.userId;
         author.style.cursor = 'pointer';
         author.addEventListener('click', () => openUserProfileModal(post.userId));
         postMeta.appendChild(author);
         
-        // Reactions span
         const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes`);
         postMeta.appendChild(reactions);
         
-        // Views span
         const views = createSpan('views', `👁️ ${post.views} views`);
         postMeta.appendChild(views);
 
-        // Bookmark button
-        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`, () => {bookmark.addEventListener('click', changeBtnColor);});
+        // Bookmark button with color toggle
+        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`);
+        bookmark.addEventListener('click', changeBtnColor)
         postMeta.appendChild(bookmark);
         
-        // Create body
+        // Post body preview
         const body = createParagraph(post.body);
         body.className = 'post-body';
         
-        // Create tags
+        // Tags
         const tagsContainer = createDiv('post-tags');
         post.tags.forEach(tag => {
             const tagSpan = createSpan('tag', tag);
             tagsContainer.appendChild(tagSpan);
         });
         
-        // Append all to post element
+        // Assemble card
         postElement.appendChild(title);
         postElement.appendChild(postMeta);
         postElement.appendChild(body);
         postElement.appendChild(tagsContainer);
         
-        // Add the post to the page
         postsContainer.appendChild(postElement);
     } catch (error) {
         console.error('Error displaying post:', error);
-        // Still show the post even if user fetch fails
+        // Fallback: show post even if user fetch fails
         const postElement = createArticle('post-card');
         
         const title = createHeading(3, post.title, 'post-title');
@@ -148,43 +148,42 @@ export async function displayPost(post) {
     }
 }
 
-/**
- * View post detail with full content and comments
- */
+// ========== Post Detail View ==========
+
+// Show full post with comments
 export async function viewPostDetail(postId) {
     showView('post-detail');
 
     const postContent = document.getElementById('post-content');
     const commentsContainer = document.getElementById('comments-container');
 
-    // Clear containers
+    // Clear previous content
     clearContainer(postContent);
     clearContainer(commentsContainer);
     
-    // Show loading state
+    // Loading state
     postContent.appendChild(createParagraph('Loading post...'));
 
     try {
         const post = await fetchPostById(postId);
 
-        // Store the current post
+        // Store for other functions to access
         appData.currentPost = post;
 
-        // Fetch the author
+        // Fetch author
         const user = await fetchUser(post.userId);
         const authorName = user ? `${user.firstName} ${user.lastName}` : `User ${post.userId}`;
 
-        // Clear loading state
+        // Clear loading message
         clearContainer(postContent);
 
-        // Create article element
+        // Build detail card
         const article = createArticle('post-detail-card');
 
-        // Add title
         const title = createHeading(2, post.title);
         article.appendChild(title);
 
-        // Create post meta
+        // Metadata
         const postMeta = createDiv('post-meta');
         
         const author = createSpan('author', `👤 ${authorName}`);
@@ -192,18 +191,20 @@ export async function viewPostDetail(postId) {
         author.addEventListener('click', () => openUserProfileModal(post.userId));
         postMeta.appendChild(author);
         
+        // Show both likes and dislikes in detail view
         const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes | 👎 ${post.reactions.dislikes} dislikes`);
         postMeta.appendChild(reactions);
         
         const views = createSpan('views', `👁️ ${post.views} views`);
         postMeta.appendChild(views);
 
-        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`, () => {bookmark.addEventListener('click', changeBtnColor);});
+        const bookmark = createButton('🔖', 'bookmarkBtn', `btn${post.id}`);
+        bookmark.addEventListener('click', changeBtnColor)
         postMeta.appendChild(bookmark);
         
         article.appendChild(postMeta);
 
-        // Add tags
+        // Tags
         const tagsContainer = createDiv('post-tags');
         post.tags.forEach(tag => {
             const tagSpan = createSpan('tag', tag);
@@ -211,14 +212,14 @@ export async function viewPostDetail(postId) {
         });
         article.appendChild(tagsContainer);
 
-        // Add body
+        // Full body text
         const body = createParagraph(post.body);
         body.className = 'post-full-body';
         article.appendChild(body);
 
         postContent.appendChild(article);
 
-        // Load comments
+        // Load comments below post
         await loadComments(postId);
 
     } catch (error) {
@@ -229,26 +230,24 @@ export async function viewPostDetail(postId) {
     }
 }
 
-/**
- * Load more posts when button is clicked
- */
+// ========== Pagination ==========
+
+// Load next batch when user clicks "Load More"
 export async function loadMorePosts() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     
-    // Disable button while loading
+    // Disable to prevent double-click
     loadMoreBtn.disabled = true;
     loadMoreBtn.textContent = 'Loading...';
     
     await loadPosts();
     
-    // Re-enable button
+    // Re-enable
     loadMoreBtn.disabled = false;
     loadMoreBtn.textContent = 'Load More Posts';
 }
 
-/**
- * Setup the "Load More" button event listener
- */
+// Initialize "Load More" button
 export function setupLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
@@ -256,13 +255,13 @@ export function setupLoadMoreButton() {
     }
 }
 
-/**
- * Setup the "Back to top" button event listener
- */
+// Initialize "Scroll to Top" button
 export function setupBackToTopButton() {
     const container = document.getElementById('scrollToTop');
     const scrollToTopBtn = createButton('↑', 'hidden', 'scroll-btn', () =>{window.scrollTo({top: 0, behavior: 'smooth'})});
     container.appendChild(scrollToTopBtn);
+    
+    // Show button when user scrolls down 200px
     window.addEventListener('scroll', () => {
         if (window.scrollY > 200) {
             scrollToTopBtn.classList.remove('hidden');
@@ -272,24 +271,20 @@ export function setupBackToTopButton() {
     })
 }
 
-/**
- * Show/hide Load More button based on available posts
- */
+// Show/hide "Load More" based on remaining posts
 function updateLoadMoreButton() {
     const loadMoreBtn = document.getElementById('load-more-btn');
     
+    // Hide when all posts loaded
     if (appData.currentSkip >= appData.totalPosts) {
-        // No more posts to load
         loadMoreBtn.classList.add('hidden');
     } else {
-        // More posts available
         loadMoreBtn.classList.remove('hidden');
     }
 }
 
-/**
- * Show loading spinner
- */
+// ========== UI Helpers ==========
+
 function showSpinner() {
     const spinner = document.getElementById('loading-spinner');
     if (spinner) {
@@ -297,9 +292,6 @@ function showSpinner() {
     }
 }
 
-/**
- * Hide loading spinner
- */
 function hideSpinner() {
     const spinner = document.getElementById('loading-spinner');
     if (spinner) {

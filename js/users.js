@@ -1,6 +1,11 @@
 /**
- * User Profile Management Functions
+ * USERS.JS - User Profile Display (Modal & Full Page)
+ * 
+ * WHY? Show user details in two contexts:
+ * - Modal: Quick view when clicking author name
+ * - Full page: Complete profile with user's posts
  */
+
 import { appData } from './config.js';
 import { fetchUser, fetchPostsByUserId } from './api.js';
 import { 
@@ -10,26 +15,26 @@ import {
 import { showView } from './navigation.js';
 import { viewPostDetail } from './posts.js';
 
-/**
- * Setup modal close functionality
- */
+// ========== Modal Setup ==========
+
+// Initialize modal close interactions
 export function setupModal() {
     const modal = document.getElementById('profile-modal');
     const closeBtn = document.querySelector('.close-modal');
 
-    // Close modal when clicking x
+    // Close with X button
     closeBtn.addEventListener('click', () => {
         modal.classList.add('hidden');
     });
 
-    // Close modal when clicking outside the modal
+    // Close when clicking backdrop (outside modal content)
     modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
+        if (e.target === modal) {  // Only if clicked modal, not child
             modal.classList.add('hidden');
         }
     });
 
-    // Close modal with Escape key
+    // Close with Escape key (accessibility)
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
             modal.classList.add('hidden');
@@ -37,22 +42,20 @@ export function setupModal() {
     });
 }
 
-/**
- * Open user profile in modal
- */
+// ========== Profile Modal (Quick View) ==========
+
+// Show user profile in modal popup
 export async function openUserProfileModal(userId) {
     const modal = document.getElementById('profile-modal');
     const modalContent = document.getElementById('modal-profile-content');
 
-    // Show modal
     modal.classList.remove('hidden');
     clearContainer(modalContent);
     
-    // Show loading state
     modalContent.appendChild(createParagraph('Loading profile...'));
 
     try {
-        // Fetch user details (will use cache if available)
+        // Fetch from cache if available
         const user = await fetchUser(userId);
 
         if (!user) {
@@ -64,7 +67,7 @@ export async function openUserProfileModal(userId) {
 
         clearContainer(modalContent);
 
-        // Create profile header
+        // Profile header (image, name, username)
         const profileHeader = createDiv('modal-profile-header');
         
         const profileImage = createImage(user.image, `${user.firstName} ${user.lastName}`, 'modal-profile-image');
@@ -79,10 +82,10 @@ export async function openUserProfileModal(userId) {
         
         modalContent.appendChild(profileHeader);
 
-        // Create profile details container
+        // Profile details list
         const profileDetails = createDiv('modal-profile-details');
 
-        // Helper function to add detail items
+        // Helper to reduce repetitive code for detail items
         const addDetailItem = (label, value) => {
             const item = createDiv('profile-detail-item');
             const labelEl = document.createElement('strong');
@@ -93,6 +96,7 @@ export async function openUserProfileModal(userId) {
             profileDetails.appendChild(item);
         };
 
+        // Add all user details
         addDetailItem('📧 Email:', user.email);
         addDetailItem('📍 Address:', `${user.address.address}, ${user.address.city}, ${user.address.state} ${user.address.postalCode}`);
         addDetailItem('📞 Phone:', user.phone);
@@ -113,24 +117,21 @@ export async function openUserProfileModal(userId) {
     }
 }
 
-/**
- * View user profile with their posts (full page view)
- */
+// ========== Full Profile Page ==========
+
+// Show complete user profile with their posts
 export async function viewUserProfile(userId) {
     showView('profile');
 
     const profileContent = document.getElementById('profile-content');
     const userPostsContainer = document.getElementById('user-posts-container');
 
-    // Clear containers
     clearContainer(profileContent);
     clearContainer(userPostsContainer);
     
-    // Show loading state
     profileContent.appendChild(createParagraph('Loading profile...'));
 
     try {
-        // Fetch user details
         const user = await fetchUser(userId);
 
         if (!user) {
@@ -140,20 +141,19 @@ export async function viewUserProfile(userId) {
             return;
         }
 
-        // Store current user 
+        // Store for other functions to access
         appData.currentUser = user;
 
-        // Clear loading and create profile card
         clearContainer(profileContent);
         
+        // Build profile card
         const profileCard = createDiv('profile-card');
         const profileHeader = createDiv('profile-header');
         
-        // Profile image
         const profileImage = createImage(user.image, `${user.firstName} ${user.lastName}`, 'profile-image');
         profileHeader.appendChild(profileImage);
         
-        // Profile info
+        // Profile info section
         const profileInfo = createDiv('profile-info');
         
         const name = createHeading(2, `${user.firstName} ${user.lastName}`);
@@ -167,17 +167,15 @@ export async function viewUserProfile(userId) {
         email.className = 'profile-email';
         profileInfo.appendChild(email);
         
+        // Additional details
         const details = createParagraph();
         details.className = 'profile-details';
         
-        // Create address line
         const addressLine = createSpan('', `📍 ${user.address.city}, ${user.address.state}`);
         details.appendChild(addressLine);
         
-        // Add line break
-        details.appendChild(document.createElement('br'));
+        details.appendChild(document.createElement('br'));  // Line break
         
-        // Create age and eye color line
         const detailsLine = createSpan('', `🎂 Age: ${user.age} | 👁️ ${user.eyeColor} eyes | ${user.height}cm`);
         details.appendChild(detailsLine);
         
@@ -187,7 +185,7 @@ export async function viewUserProfile(userId) {
         profileCard.appendChild(profileHeader);
         profileContent.appendChild(profileCard);
 
-        // Load user's posts
+        // Load user's posts below profile
         await loadUserPosts(userId);
 
     } catch (error) {
@@ -198,19 +196,17 @@ export async function viewUserProfile(userId) {
     }
 }
 
-/**
- * Load all posts by a specific user
- */
+// Load all posts by specific user (for profile page)
 async function loadUserPosts(userId) {
     const userPostsContainer = document.getElementById('user-posts-container');
     clearContainer(userPostsContainer);
     
-    // Show loading state
     userPostsContainer.appendChild(createParagraph('Loading user posts...'));
     
     try {
         const data = await fetchPostsByUserId(userId);
         
+        // Empty state
         if (data.posts.length === 0) {
             clearContainer(userPostsContainer);
             const emptyState = createDiv('empty-state', 'No posts available from this user.');
@@ -220,16 +216,17 @@ async function loadUserPosts(userId) {
         
         clearContainer(userPostsContainer);
         
+        // Display each post (similar to posts.js but no author shown)
         for (const post of data.posts) {
             const postElement = createArticle('post-card');
             
-            // Title
+            // Clickable title
             const title = createHeading(3, post.title, 'post-title');
             title.dataset.postId = post.id;
             title.addEventListener('click', () => viewPostDetail(post.id));
             postElement.appendChild(title);
             
-            // Meta
+            // Meta (no author since we're on user profile)
             const postMeta = createDiv('post-meta');
             const reactions = createSpan('reactions', `❤️ ${post.reactions.likes} likes`);
             const views = createSpan('views', `👁️ ${post.views} views`);
@@ -237,7 +234,7 @@ async function loadUserPosts(userId) {
             postMeta.appendChild(views);
             postElement.appendChild(postMeta);
             
-            // Body
+            // Body preview
             const body = createParagraph(post.body);
             body.className = 'post-body';
             postElement.appendChild(body);
