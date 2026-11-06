@@ -1,10 +1,12 @@
 # PostHub - Dynamic Community Blog Platform
 
+> **Status:** finished learning project (October 2025), not maintained. Live demo: [post-hub-dynamic-website.vercel.app](https://post-hub-dynamic-website.vercel.app). The contact form is UI-only: it validates input and shows a confirmation, but sends nothing.
+
 ## About This Project
 
 I built **PostHub** as a dynamic, single-page application (SPA) that serves as a community blog platform. This project showcases my ability to create modern, interactive web applications using vanilla JavaScript, while demonstrating best practices in frontend development.
 
-The application fetches real-time data from the DummyJSON API and provides an engaging user experience with features like post browsing, detailed post views with comments, user profiles, and a contact form.
+The application fetches real-time data from the DummyJSON API and provides an engaging user experience with features like post browsing, detailed post views with comments, user profiles, and a demo contact form.
 
 ## Skills I'm Mastering
 
@@ -45,7 +47,7 @@ Through this project, I'm developing and refining several key frontend developme
 - ** User Profiles**: Click on authors to view their profile information
 - ** Interactive Modals**: User profile modal with complete information
 - ** Comments System**: View all comments for each post
-- ** Contact Form**: Functional contact form with validation
+- ** Contact Form**: Contact form UI with validation (demo only: nothing is sent)
 - ** Fully Responsive**: Optimized for mobile, tablet, and desktop
 - ** Performance**: Client-side caching for faster subsequent loads
 - ** Modern UI**: Clean, professional design with smooth animations
